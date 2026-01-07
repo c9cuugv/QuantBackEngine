@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantBackEngine - Algorithmic Trading Backtest Platform</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 QuantBackEngine</h1>
+            <p>Professional Algorithmic Trading Backtest Platform</p>
+        </header>
+
+        <div class="control-panel">
+            <div class="upload-section">
+                <label for="csvFile" class="file-label">
+                    📁 Upload CSV File
+                    <input type="file" id="csvFile" accept=".csv" required>
+                </label>
+                <span id="fileName" class="file-name">No file chosen</span>
+            </div>
+
+            <div class="parameters">
+                <div class="param-group">
+                    <label for="shortSma">Short SMA</label>
+                    <input type="number" id="shortSma" value="50" min="1" max="500">
+                </div>
+                <div class="param-group">
+                    <label for="longSma">Long SMA</label>
+                    <input type="number" id="longSma" value="200" min="1" max="500">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button id="runBacktest" class="btn btn-primary">▶ Run Backtest</button>
+                <button id="optimize" class="btn btn-secondary">🔍 Optimize Parameters</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Processing... Please wait</p>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Total Return</h3>
+                    <p id="totalReturn" class="metric-value">-</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Annualized Return</h3>
+                    <p id="annualizedReturn" class="metric-value">-</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Sharpe Ratio</h3>
+                    <p id="sharpeRatio" class="metric-value">-</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Sortino Ratio</h3>
+                    <p id="sortinoRatio" class="metric-value">-</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Win Rate</h3>
+                    <p id="winRate" class="metric-value">-</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Profit Factor</h3>
+                    <p id="profitFactor" class="metric-value">-</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Max Drawdown</h3>
+                    <p id="maxDrawdown" class="metric-value">-</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>Equity Curve</h2>
+
+                <!-- Time Period Filters -->
+                <div class="chart-filters">
+                    <div class="time-filters">
+                        <button class="filter-btn active" data-period="all">All</button>
+                        <button class="filter-btn" data-period="1y">1 Year</button>
+                        <button class="filter-btn" data-period="6m">6 Months</button>
+                        <button class="filter-btn" data-period="3m">3 Months</button>
+                        <button class="filter-btn" data-period="1m">1 Month</button>
+                        <button class="filter-btn" data-period="1w">1 Week</button>
+                    </div>
+
+                    <div class="date-range-picker">
+                        <label for="startDate">From:</label>
+                        <input type="date" id="startDate" class="date-input">
+                        <label for="endDate">To:</label>
+                        <input type="date" id="endDate" class="date-input">
+                        <button id="applyDateRange" class="btn-apply">Apply</button>
+                        <button id="resetChart" class="btn-reset">Reset</button>
+                    </div>
+                </div>
+
+                <canvas id="equityChart"></canvas>
+            </div>
+
+            <div class="report-container">
+                <h2>Detailed Report</h2>
+                <pre id="detailedReport"></pre>
+            </div>
+        </div>
+
+        <div id="optimizeResults" class="optimize-results" style="display: none;">
+            <h2>Optimization Results (Top 10)</h2>
+            <table id="optimizeTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Short SMA</th>
+                        <th>Long SMA</th>
+                        <th>Total Return</th>
+                        <th>Sharpe Ratio</th>
+                        <th>Win Rate</th>
+                        <th>Max Drawdown</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="optimizeTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+
+</html>

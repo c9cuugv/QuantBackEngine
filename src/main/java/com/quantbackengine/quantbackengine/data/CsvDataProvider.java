@@ -43,9 +43,18 @@ public class CsvDataProvider implements DataProvider {
 
     @Override
     public BarSeries getHistoricalData(String symbol, LocalDate start, LocalDate end) throws Exception {
-        InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath);
-        if (is == null) {
-            throw new IllegalArgumentException("CSV file not found in resources: " + resourcePath);
+        InputStream is;
+
+        // Check if it's an absolute file path (uploaded file)
+        java.io.File file = new java.io.File(resourcePath);
+        if (file.exists() && file.isFile()) {
+            is = new java.io.FileInputStream(file);
+        } else {
+            // Try loading from classpath resources
+            is = getClass().getClassLoader().getResourceAsStream(resourcePath);
+            if (is == null) {
+                throw new IllegalArgumentException("CSV file not found: " + resourcePath);
+            }
         }
 
         Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8);

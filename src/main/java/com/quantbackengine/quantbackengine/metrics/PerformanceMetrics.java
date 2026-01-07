@@ -1,6 +1,7 @@
 package com.quantbackengine.quantbackengine.metrics;
 
 import com.quantbackengine.quantbackengine.backtest.BacktestResult;
+import com.quantbackengine.quantbackengine.backtest.Backtester;
 import com.quantbackengine.quantbackengine.backtest.Backtester.EquityPoint;
 
 import java.time.Duration;
@@ -27,6 +28,8 @@ public class PerformanceMetrics {
      */
     public MetricsReport calculate(BacktestResult result) {
         List<EquityPoint> equityCurve = result.equityCurve();
+        List<Backtester.Trade> trades = result.completedTrades();
+
         if (equityCurve.isEmpty()) {
             throw new IllegalArgumentException("Equity curve cannot be empty");
         }
@@ -42,8 +45,100 @@ public class PerformanceMetrics {
         MaxDrawdown maxDrawdown = calculateMaxDrawdown(equityCurve);
 
         double sharpeRatio = calculateSharpeRatio(equityCurve, years);
+        double sortinoRatio = calculateSortinoRatio(equityCurve, years);
 
-        return new MetricsReport(totalReturn, annualizedReturn, maxDrawdown, sharpeRatio, years);
+        // Advanced metrics
+        double winRate = calculateWinRate(trades);
+        double profitFactor = calculateProfitFactor(trades);
+
+        return new MetricsReport(totalReturn, annualizedReturn, maxDrawdown, sharpeRatio,
+                sortinoRatio, winRate, profitFactor, years);
+    }
+
+    /**
+     * Calculates the percentage of profitable trades.
+     */
+    private double calculateWinRate(List<Backtester.Trade> trades) {
+        if (trades.isEmpty())
+            return 0.0;
+
+        long wins = trades.stream()
+                .filter(t -> {
+                    double entry = t.entryPrice().doubleValue();
+                    double exit = t.exitPrice().doubleValue();
+                    double shares = t.shares().doubleValue();
+                    double pl = (exit - entry) * shares - t.commission();
+                    return pl > 0;
+                }).count();
+
+        return (double) wins / trades.size();
+    }
+
+    /**
+     * Calculates the ratio of gross profits to gross losses.
+     */
+    private double calculateProfitFactor(List<Backtester.Trade> trades) {
+        double grossProfit = 0.0;
+        double grossLoss = 0.0;
+
+        for (Backtester.Trade t : trades) {
+            double entry = t.entryPrice().doubleValue();
+            double exit = t.exitPrice().doubleValue();
+            double shares = t.shares().doubleValue();
+            double pl = (exit - entry) * shares - t.commission();
+
+            if (pl > 0) {
+                grossProfit += pl;
+            } else {
+                grossLoss += Math.abs(pl);
+            }
+        }
+
+        if (grossLoss == 0) {
+            return grossProfit > 0 ? Double.POSITIVE_INFINITY : 0.0;
+        }
+        return grossProfit / grossLoss;
+    }
+
+    /**
+     * Calculates the Sortino Ratio (downside risk-adjusted return).
+     */
+    private double calculateSortinoRatio(List<EquityPoint> equityCurve, double years) {
+        if (years <= 0 || equityCurve.size() < 2)
+            return 0.0;
+
+        int n = equityCurve.size() - 1;
+        double[] returns = new double[n];
+        double meanReturn = 0;
+
+        for (int i = 1; i < equityCurve.size(); i++) {
+            double prev = equityCurve.get(i - 1).portfolioValue();
+            double curr = equityCurve.get(i).portfolioValue();
+            returns[i - 1] = (curr - prev) / prev;
+            meanReturn += returns[i - 1];
+        }
+        meanReturn /= n;
+
+        // Calculate downside deviation (only negative returns)
+        double downsideVariance = 0;
+        for (double r : returns) {
+            if (r < 0) {
+                downsideVariance += Math.pow(r, 2);
+            }
+        }
+
+        if (downsideVariance == 0)
+            return 0.0;
+
+        double downsideStdDev = Math.sqrt(downsideVariance / n);
+        if (downsideStdDev == 0)
+            return 0.0;
+
+        // Annualize
+        double annualizedMean = meanReturn * 252;
+        double annualizedDownsideStdDev = downsideStdDev * Math.sqrt(252);
+
+        return (annualizedMean - riskFreeRate) / annualizedDownsideStdDev;
     }
 
     private double calculateYears(List<EquityPoint> equityCurve) {
@@ -56,7 +151,6 @@ public class PerformanceMetrics {
         double peak = -Double.MAX_VALUE;
         double maxDd = 0.0;
         double maxDdPct = 0.0;
-        double trough = 0.0;
 
         for (EquityPoint point : equityCurve) {
             double value = point.portfolioValue();
@@ -67,7 +161,6 @@ public class PerformanceMetrics {
             if (drawdown > maxDd) {
                 maxDd = drawdown;
                 maxDdPct = maxDd / peak;
-                trough = value;
             }
         }
         return new MaxDrawdown(maxDd, maxDdPct);
@@ -113,7 +206,8 @@ public class PerformanceMetrics {
     /**
      * Immutable record for maximum drawdown results.
      */
-    public record MaxDrawdown(double absolute, double percentage) {}
+    public record MaxDrawdown(double absolute, double percentage) {
+    }
 
     /**
      * Immutable record containing all calculated metrics.
@@ -123,27 +217,35 @@ public class PerformanceMetrics {
             double annualizedReturn,
             MaxDrawdown maxDrawdown,
             double sharpeRatio,
+            double sortinoRatio,
+            double winRate,
+            double profitFactor,
             double backtestYears) {
 
         @Override
         public String toString() {
             return String.format(
                     """
-                    Performance Metrics
-                    ===================
-                    Backtest Period     : %.2f years
-                    Total Return        : %.2f%%
-                    Annualized Return   : %.2f%%
-                    Maximum Drawdown    : $%.2f (%.2f%%)
-                    Sharpe Ratio        : %.3f
-                    """,
+                            Performance Metrics
+                            ===================
+                            Backtest Period     : %.2f years
+                            Total Return        : %.2f%%
+                            Annualized Return   : %.2f%%
+                            Maximum Drawdown    : $%.2f (%.2f%%)
+                            Sharpe Ratio        : %.3f
+                            Sortino Ratio       : %.3f
+                            Win Rate            : %.2f%%
+                            Profit Factor       : %.2f
+                            """,
                     backtestYears,
                     totalReturn * 100,
                     annualizedReturn * 100,
                     maxDrawdown.absolute(),
                     maxDrawdown.percentage() * 100,
-                    sharpeRatio
-            );
+                    sharpeRatio,
+                    sortinoRatio,
+                    winRate * 100,
+                    profitFactor);
         }
     }
 }
