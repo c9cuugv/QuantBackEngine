@@ -1,0 +1,51 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: quantbackengine-db
+    environment:
+      POSTGRES_DB: quantdb
+      POSTGRES_USER: quantuser
+      POSTGRES_PASSWORD: quantpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U quantuser -d quantdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quantbackengine-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/quantdb
+      SPRING_DATASOURCE_USERNAME: quantuser
+      SPRING_DATASOURCE_PASSWORD: quantpass
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: quantbackengine-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

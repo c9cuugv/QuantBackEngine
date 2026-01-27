@@ -1,4 +1,0 @@
-com\quantbackengine\quantbackengine\backtest\BacktesterTest.class
-com\quantbackengine\quantbackengine\data\CsvDataProviderTest.class
-com\quantbackengine\quantbackengine\strategy\MovingAverageCrossoverStrategyTest.class
-com\quantbackengine\quantbackengine\metrics\PerformanceMetricsTest.class
