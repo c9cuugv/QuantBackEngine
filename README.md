@@ -2,7 +2,6 @@
 
 A **next-generation quantitative backtesting platform** for algorithmic trading strategies. Built with Spring Boot and Next.js for a modern, interactive experience.
 
-![Dashboard Preview](docs/dashboard-preview.png)
 
 ## 🚀 Features
 
@@ -133,15 +132,5 @@ cd frontend && npm run lint
 - [ ] Live market data integration
 - [ ] Paper trading mode
 - [ ] Strategy optimization (grid search)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read the contributing guidelines before submitting PRs.
-
-## 📄 License
-
-MIT License - see LICENSE file for details.
-
----
 
 **Built with ❤️ using Spring Boot, Next.js, and ta4j**
