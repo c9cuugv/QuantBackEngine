@@ -102,9 +102,18 @@ public class MarketDataService {
             }
         }
 
+        if (line == null) {
+            log.warn("No header found starting with 'Date' for {}", symbol);
+            return new BaseBarSeries(symbol);
+        }
+
+        // Parse the header line dynamically
+        String[] headers = CSVFormat.DEFAULT.parse(new java.io.StringReader(line))
+                .getRecords().get(0).toList().toArray(new String[0]);
+
         Iterable<CSVRecord> records = CSVFormat.DEFAULT
                 .builder()
-                .setHeader("Date", "Open", "High", "Low", "Close", "Volume")
+                .setHeader(headers)
                 .setIgnoreHeaderCase(true)
                 .setTrim(true)
                 .build()
