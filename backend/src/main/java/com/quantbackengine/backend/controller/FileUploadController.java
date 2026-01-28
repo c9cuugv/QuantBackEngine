@@ -58,6 +58,13 @@ public class FileUploadController {
             return ResponseEntity.badRequest().body(response);
         }
 
+        String contentType = file.getContentType();
+        if (contentType == null || (!contentType.equalsIgnoreCase("text/csv") && !contentType.equalsIgnoreCase("application/vnd.ms-excel") && !contentType.equalsIgnoreCase("text/plain"))) {
+            response.put("success", false);
+            response.put("error", "Invalid content type. Only CSV files are allowed");
+            return ResponseEntity.badRequest().body(response);
+        }
+
         try {
             // Create upload directory if it doesn't exist
             Path uploadPath = Paths.get(uploadDir);
@@ -68,7 +75,9 @@ public class FileUploadController {
             // Save file with symbol name
             String sanitizedSymbol = symbol.toUpperCase().replaceAll("[^A-Z0-9]", "");
             Path filePath = uploadPath.resolve(sanitizedSymbol + ".csv");
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            try (var inputStream = file.getInputStream()) {
+                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
 
             log.info("Uploaded stock data for symbol: {} to {}", sanitizedSymbol, filePath);
 
@@ -158,8 +167,8 @@ public class FileUploadController {
     }
 
     private long countCsvRows(Path filePath) {
-        try {
-            return Files.lines(filePath).count() - 1; // Subtract header row
+        try (Stream<String> lines = Files.lines(filePath)) {
+            return lines.count() - 1; // Subtract header row
         } catch (IOException e) {
             return 0;
         }

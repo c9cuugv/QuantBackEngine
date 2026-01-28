@@ -43,6 +43,10 @@ public class BacktestService {
     public BacktestResponse runBacktest(BacktestRequest request) {
         log.info("Starting backtest for {} with strategy {}", request.getSymbol(), request.getStrategy());
 
+        if (request.getStartDate() != null && request.getEndDate() != null && request.getStartDate().isAfter(request.getEndDate())) {
+            throw new IllegalArgumentException("Start date must be before end date");
+        }
+
         // Validate strategy
         TradingStrategy strategy = strategyRegistry.getStrategy(request.getStrategy())
                 .orElseThrow(() -> new IllegalArgumentException("Unknown strategy: " + request.getStrategy()));
