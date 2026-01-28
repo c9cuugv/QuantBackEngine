@@ -1,50 +1,136 @@
-# QuantBackEngine
+# QuantBackEngine 2.0
 
-A simple, Java-based backtesting engine for stock trading strategies using `ta4j`.
+A **next-generation quantitative backtesting platform** for algorithmic trading strategies. Built with Spring Boot and Next.js for a modern, interactive experience.
 
-## Prerequisites
 
--   **Java 17+** installed.
--   **Maven** installed and available in your PATH.
+## 🚀 Features
 
-## Setup
+- **Interactive Web Dashboard** - Modern UI with real-time charting using TradingView's Lightweight Charts
+- **Multiple Trading Strategies** - SMA Crossover, RSI, and easily extensible architecture
+- **Dynamic Parameter Tuning** - Adjust strategy parameters without recompiling
+- **Comprehensive Metrics** - Sharpe Ratio, Max Drawdown, Win Rate, and more
+- **REST API** - Full OpenAPI/Swagger documentation
+- **Docker Ready** - One-command deployment with Docker Compose
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd QuantBackEngine
-    ```
+## 📋 Prerequisites
 
-2.  **Build the project:**
-    ```bash
-    mvn clean install
-    ```
+- **Java 21+** (for backend development)
+- **Node.js 18+** (for frontend development)
+- **Maven 3.9+** (for building backend)
+- **Docker & Docker Compose** (for containerized deployment)
 
-## Execution
+## 🏗️ Project Structure
 
-### Run the Backtest
-To run the backtest, generate the report, and open the Dashboard:
-
-```bash
-mvn clean compile exec:java "-Dexec.mainClass=com.quantbackengine.quantbackengine.Main"
+```
+QuantBackEngine/
+├── backend/                 # Spring Boot API
+│   ├── src/main/java/
+│   │   └── com/quantbackengine/backend/
+│   │       ├── controller/  # REST endpoints
+│   │       ├── service/     # Business logic
+│   │       ├── strategy/    # Trading strategies
+│   │       ├── domain/      # JPA entities
+│   │       └── dto/         # Data transfer objects
+│   └── pom.xml
+├── frontend/                # Next.js Dashboard
+│   ├── app/                 # Pages (App Router)
+│   ├── components/          # React components
+│   └── package.json
+├── docker-compose.yml       # Full-stack deployment
+└── README.md
 ```
 
-**What happens:**
--   Loads data from `src/main/resources/data/AAPL.csv`.
--   Runs a Moving Average Crossover strategy (SMA 50/200).
--   Prints results to the console.
--   **Saves Report:** Text file saved to `reports/report_[TIMESTAMP].txt`.
--   **Saves Chart:** Equity curve image saved to `reports/equity_curve_[TIMESTAMP].png`.
--   **Opens Output:** Launches a GUI window with the chart and results.
+## 🛠️ Quick Start
 
-### Run Tests
-To verify the system and run unit tests:
+### Option 1: Docker Compose (Recommended)
 
 ```bash
-mvn test
+# Start all services (PostgreSQL, Backend, Frontend)
+docker-compose up --build
+
+# Access the dashboard at http://localhost:3000
+# API docs at http://localhost:8080/swagger-ui.html
 ```
 
-## Project Structure
--   `src/main/java`: Source code.
--   `src/main/resources/data`: CSV data files.
--   `reports/`: Generated results (charts and logs).
+### Option 2: Local Development
+
+**Backend:**
+```bash
+cd backend
+mvn spring-boot:run
+# API available at http://localhost:8080
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+# Dashboard at http://localhost:3000
+```
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/backtest/run` | Run a backtest |
+| `GET` | `/api/v1/backtest/strategies` | List available strategies |
+| `GET` | `/api/v1/backtest/strategies/{id}` | Get strategy details |
+| `GET` | `/api/v1/market-data/symbols` | List available symbols |
+
+### Example: Run Backtest
+
+```bash
+curl -X POST http://localhost:8080/api/v1/backtest/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "symbol": "AAPL",
+    "strategy": "SMA_CROSSOVER",
+    "parameters": { "shortPeriod": 50, "longPeriod": 200 },
+    "startDate": "2020-01-01",
+    "endDate": "2024-12-31",
+    "initialCapital": 100000
+  }'
+```
+
+## 📊 Available Strategies
+
+| Strategy | Description | Parameters |
+|----------|-------------|------------|
+| **SMA Crossover** | Trend-following using moving average crossovers | `shortPeriod`, `longPeriod` |
+| **RSI Momentum** | Mean-reversion using RSI indicator | `period`, `oversoldThreshold`, `overboughtThreshold` |
+
+## 🔧 Adding New Strategies
+
+1. Create a new class in `backend/src/main/java/.../strategy/`
+2. Implement `TradingStrategy` interface
+3. Add `@Component` annotation
+4. The strategy will be auto-discovered by the registry!
+
+```java
+@Component
+public class MyStrategy implements TradingStrategy {
+    // Implement interface methods...
+}
+```
+
+## 🧪 Testing
+
+```bash
+# Backend tests
+cd backend && mvn test
+
+# Frontend lint
+cd frontend && npm run lint
+```
+
+## 📈 Roadmap
+
+- [ ] User authentication
+- [ ] Save/load backtest configurations
+- [ ] Multiple asset portfolios
+- [ ] Live market data integration
+- [ ] Paper trading mode
+- [ ] Strategy optimization (grid search)
+
+**Built with ❤️ using Spring Boot, Next.js, and ta4j**
