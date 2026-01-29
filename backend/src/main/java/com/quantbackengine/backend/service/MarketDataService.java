@@ -22,7 +22,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -34,6 +36,11 @@ import java.util.stream.Stream;
 public class MarketDataService {
 
     private static final ZoneId ZONE_ID = ZoneId.of("UTC");
+
+    // Cache available symbols to avoid frequent disk I/O
+    private List<String> cachedSymbols;
+    private long lastCacheUpdate = 0;
+    private static final long CACHE_DURATION_MS = 10000; // 10 seconds
 
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
@@ -152,8 +159,13 @@ public class MarketDataService {
     /**
      * Get list of available symbols (predefined + uploaded).
      */
-    public List<String> getAvailableSymbols() {
-        List<String> symbols = new ArrayList<>();
+    public synchronized List<String> getAvailableSymbols() {
+        long now = System.currentTimeMillis();
+        if (cachedSymbols != null && (now - lastCacheUpdate < CACHE_DURATION_MS)) {
+            return new ArrayList<>(cachedSymbols); // Return copy to protect cache
+        }
+
+        Set<String> symbols = new LinkedHashSet<>();
         symbols.add("AAPL"); // Predefined
 
         // Add uploaded symbols
@@ -165,9 +177,7 @@ public class MarketDataService {
                             .forEach(p -> {
                                 String filename = p.getFileName().toString();
                                 String symbol = filename.replace(".csv", "").toUpperCase();
-                                if (!symbols.contains(symbol)) {
-                                    symbols.add(symbol);
-                                }
+                                symbols.add(symbol);
                             });
                 }
             }
@@ -175,6 +185,8 @@ public class MarketDataService {
             log.error("Error listing uploaded files: {}", e.getMessage());
         }
 
-        return symbols;
+        cachedSymbols = new ArrayList<>(symbols);
+        lastCacheUpdate = now;
+        return new ArrayList<>(cachedSymbols);
     }
 }
