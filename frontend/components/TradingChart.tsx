@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useId } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { createChart, ColorType, IChartApi, ISeriesApi, CandlestickData, Time } from 'lightweight-charts';
 
 interface Candle {
@@ -110,24 +110,21 @@ export default function TradingChart({ candles, trades }: TradingChartProps) {
         };
     }, []); // Only run once on mount
 
-    // Update data when candles or trades change
-    useEffect(() => {
-        if (!seriesRef.current || !chartRef.current || candles.length === 0) return;
-
-        // Format data for Lightweight Charts
-        const formattedCandles = candles.map((c) => ({
+    // Format data for Lightweight Charts
+    const formattedCandles = useMemo(() => {
+        if (candles.length === 0) return [];
+        return candles.map((c) => ({
             time: c.time as Time,
             open: c.open,
             high: c.high,
             low: c.low,
             close: c.close,
         }));
+    }, [candles]);
 
-        // Set the new data
-        seriesRef.current.setData(formattedCandles);
-
-        // Add trade markers
-        const markers = trades.flatMap((trade) => {
+    // Create markers
+    const markers = useMemo(() => {
+        return trades.flatMap((trade) => {
             const entryTime = new Date(trade.entryDate).getTime() / 1000;
             const exitTime = new Date(trade.exitDate).getTime() / 1000;
 
@@ -148,17 +145,24 @@ export default function TradingChart({ candles, trades }: TradingChartProps) {
                 },
             ];
         });
+    }, [trades]);
 
+    // Update chart data
+    useEffect(() => {
+        if (!seriesRef.current || !chartRef.current || formattedCandles.length === 0) return;
+        seriesRef.current.setData(formattedCandles);
+        chartRef.current.timeScale().fitContent();
+    }, [formattedCandles]);
+
+    // Update markers
+    useEffect(() => {
+        if (!seriesRef.current) return;
         if (markers.length > 0) {
             seriesRef.current.setMarkers(markers);
         } else {
             seriesRef.current.setMarkers([]);
         }
-
-        // Fit content to show all data
-        chartRef.current.timeScale().fitContent();
-
-    }, [candles, trades]);
+    }, [markers]);
 
     return (
         <div
