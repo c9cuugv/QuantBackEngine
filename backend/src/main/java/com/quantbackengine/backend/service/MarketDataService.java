@@ -42,6 +42,11 @@ public class MarketDataService {
     private long lastCacheUpdate = 0;
     private static final long CACHE_DURATION_MS = 10000; // 10 seconds
 
+    // Cache for parsed BarSeries
+    private final java.util.Map<String, CachedMarketData> barSeriesCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private record CachedMarketData(BarSeries series, long lastModified) {}
+
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
@@ -51,25 +56,75 @@ public class MarketDataService {
      */
     public BarSeries getBarSeries(String symbol, LocalDate start, LocalDate end) {
         String sanitizedSymbol = symbol.toUpperCase().replaceAll("[^A-Z0-9]", "");
+        BarSeries fullSeries;
 
-        // First, try to load from uploads folder
-        Path uploadPath = Paths.get(uploadDir, sanitizedSymbol + ".csv");
-        if (Files.exists(uploadPath)) {
-            log.info("Loading {} from uploads folder", sanitizedSymbol);
-            return loadFromFile(uploadPath, sanitizedSymbol, start, end);
+        try {
+            // First, try to load from uploads folder
+            Path uploadPath = Paths.get(uploadDir, sanitizedSymbol + ".csv");
+            if (Files.exists(uploadPath)) {
+                long lastModified = Files.getLastModifiedTime(uploadPath).toMillis();
+                CachedMarketData cached = barSeriesCache.get(sanitizedSymbol);
+
+                if (cached != null && cached.lastModified() == lastModified) {
+                    log.debug("Cache hit for {}", sanitizedSymbol);
+                    fullSeries = cached.series();
+                } else {
+                    log.info("Loading {} from uploads folder", sanitizedSymbol);
+                    fullSeries = loadFromFile(uploadPath, sanitizedSymbol);
+                    barSeriesCache.put(sanitizedSymbol, new CachedMarketData(fullSeries, lastModified));
+                }
+            } else {
+                // Fall back to resources folder
+                // For resources, we assume they are static (lastModified = 0)
+                CachedMarketData cached = barSeriesCache.get(sanitizedSymbol);
+                if (cached != null && cached.lastModified() == 0) {
+                    fullSeries = cached.series();
+                } else {
+                    String resourcePath = "data/" + sanitizedSymbol + ".csv";
+                    fullSeries = loadFromResource(resourcePath, sanitizedSymbol);
+                    // Only cache if we successfully loaded something (not empty)
+                    if (!fullSeries.isEmpty()) {
+                        barSeriesCache.put(sanitizedSymbol, new CachedMarketData(fullSeries, 0));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error retrieving bar series for {}: {}", symbol, e.getMessage());
+            return new BaseBarSeries(symbol);
         }
 
-        // Fall back to resources folder
-        String resourcePath = "data/" + sanitizedSymbol + ".csv";
-        return loadFromResource(resourcePath, sanitizedSymbol, start, end);
+        // Return filtered view
+        return filterSeries(fullSeries, start, end);
+    }
+
+    /**
+     * Filter a BarSeries by date range.
+     */
+    private BarSeries filterSeries(BarSeries fullSeries, LocalDate start, LocalDate end) {
+        if (fullSeries.isEmpty()) {
+            return fullSeries;
+        }
+
+        List<Bar> filteredBars = new ArrayList<>();
+        // Optimization: fullSeries is sorted. We can find range or just iterate.
+        // Simple iteration is fast enough for memory-resident data.
+        for (int i = 0; i < fullSeries.getBarCount(); i++) {
+            Bar bar = fullSeries.getBar(i);
+            LocalDate date = bar.getEndTime().toLocalDate();
+            if (!date.isBefore(start) && !date.isAfter(end)) {
+                filteredBars.add(bar);
+            }
+        }
+
+        return new BaseBarSeries(fullSeries.getName(), filteredBars);
     }
 
     /**
      * Load from file system (uploads folder).
      */
-    private BarSeries loadFromFile(Path filePath, String symbol, LocalDate start, LocalDate end) {
+    private BarSeries loadFromFile(Path filePath, String symbol) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath.toFile(), StandardCharsets.UTF_8))) {
-            return parseCSV(reader, symbol, start, end);
+            return parseCSV(reader, symbol);
         } catch (Exception e) {
             log.error("Error loading market data from file for {}: {}", symbol, e.getMessage());
             return new BaseBarSeries(symbol);
@@ -79,7 +134,7 @@ public class MarketDataService {
     /**
      * Load from classpath resources.
      */
-    private BarSeries loadFromResource(String resourcePath, String symbol, LocalDate start, LocalDate end) {
+    private BarSeries loadFromResource(String resourcePath, String symbol) {
         try {
             ClassPathResource resource = new ClassPathResource(resourcePath);
             if (!resource.exists()) {
@@ -89,7 +144,7 @@ public class MarketDataService {
 
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-                return parseCSV(reader, symbol, start, end);
+                return parseCSV(reader, symbol);
             }
         } catch (Exception e) {
             log.error("Error loading market data for {}: {}", symbol, e.getMessage());
@@ -100,7 +155,7 @@ public class MarketDataService {
     /**
      * Parse CSV data into BarSeries.
      */
-    private BarSeries parseCSV(BufferedReader reader, String symbol, LocalDate start, LocalDate end) throws Exception {
+    private BarSeries parseCSV(BufferedReader reader, String symbol) throws Exception {
         // Skip preamble until header (handles MacroTrends format)
         String line;
         while ((line = reader.readLine()) != null) {
@@ -131,10 +186,8 @@ public class MarketDataService {
         for (CSVRecord record : records) {
             try {
                 LocalDate date = LocalDate.parse(record.get("Date"));
-                if (date.isBefore(start) || date.isAfter(end)) {
-                    continue;
-                }
 
+                // Load ALL data
                 Bar bar = new BaseBar(
                         Duration.ofDays(1),
                         date.atStartOfDay(ZONE_ID),
@@ -152,7 +205,7 @@ public class MarketDataService {
         // Sort chronologically
         bars.sort((b1, b2) -> b1.getEndTime().compareTo(b2.getEndTime()));
 
-        log.info("Loaded {} bars for {} from {} to {}", bars.size(), symbol, start, end);
+        log.info("Loaded full series: {} bars for {}", bars.size(), symbol);
         return new BaseBarSeries(symbol, bars);
     }
 
