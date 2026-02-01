@@ -73,9 +73,10 @@ public class BacktestService {
         TradingRecord tradingRecord = seriesManager.run(ta4jStrategy);
 
         // Process results
-        List<TradeDto> trades = new ArrayList<>();
-        List<EquityPointDto> equityCurve = new ArrayList<>();
-        List<CandleDto> candles = new ArrayList<>();
+        int barCount = series.getBarCount();
+        List<TradeDto> trades = new ArrayList<>(barCount);
+        List<EquityPointDto> equityCurve = new ArrayList<>(barCount);
+        List<CandleDto> candles = new ArrayList<>(barCount);
 
         Num cash = series.numOf(initialCapital);
         Num sharesHeld = series.numOf(0);
