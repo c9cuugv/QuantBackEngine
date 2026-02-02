@@ -62,14 +62,8 @@ export default function EquityCurve({ data, initialCapital = 100000 }: EquityCur
 
         chartRef.current = chart;
 
-        // Sample data to reduce points if needed for smooth rendering
-        const maxPoints = 500;
-        const sampledData = data.length > maxPoints
-            ? data.filter((_, idx) => idx % Math.ceil(data.length / maxPoints) === 0)
-            : data;
-
         // Determine color based on P/L
-        const finalValue = sampledData.length > 0 ? sampledData[sampledData.length - 1].value : initialCapital;
+        const finalValue = data.length > 0 ? data[data.length - 1].value : initialCapital;
         const isProfit = finalValue >= initialCapital;
 
         const areaSeries = chart.addAreaSeries({
@@ -108,13 +102,7 @@ export default function EquityCurve({ data, initialCapital = 100000 }: EquityCur
     useEffect(() => {
         if (!seriesRef.current || !chartRef.current || data.length === 0) return;
 
-        // Sample data
-        const maxPoints = 500;
-        const sampledData = data.length > maxPoints
-            ? data.filter((_, idx) => idx % Math.ceil(data.length / maxPoints) === 0)
-            : data;
-
-        const formattedData: LineData[] = sampledData.map((point) => ({
+        const formattedData: LineData[] = data.map((point) => ({
             time: Math.floor(point.timestamp / 1000) as Time,
             value: point.value,
         }));
