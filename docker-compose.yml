@@ -16,6 +16,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   # Spring Boot Backend
   backend:
@@ -30,9 +31,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/quantdb
       SPRING_DATASOURCE_USERNAME: quantuser
       SPRING_DATASOURCE_PASSWORD: quantpass
+    volumes:
+      - backend_uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
 
   # Next.js Frontend
   frontend:
@@ -43,9 +47,14 @@ services:
     ports:
       - "3000:3000"
     environment:
+      # URL for server-side API calls (proxying)
+      BACKEND_URL: http://backend:8080
+      # URL for client-side API calls (direct from browser)
       NEXT_PUBLIC_API_URL: http://localhost:8080
     depends_on:
       - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  backend_uploads:

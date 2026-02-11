@@ -22,7 +22,6 @@ import java.util.List;
 @RequestMapping("/api/v1/backtest")
 @RequiredArgsConstructor
 @Tag(name = "Backtest", description = "Backtesting API")
-@CrossOrigin(origins = "${app.cors.allowed-origins}")
 public class BacktestController {
 
     private final BacktestService backtestService;

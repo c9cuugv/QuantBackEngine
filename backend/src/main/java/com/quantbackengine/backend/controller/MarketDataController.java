@@ -16,7 +16,6 @@ import java.util.List;
 @RequestMapping("/api/v1/market-data")
 @RequiredArgsConstructor
 @Tag(name = "Market Data", description = "Market Data API")
-@CrossOrigin(origins = "${app.cors.allowed-origins}")
 public class MarketDataController {
 
     private final MarketDataService marketDataService;

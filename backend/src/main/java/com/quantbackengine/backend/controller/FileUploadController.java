@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 @RequestMapping("/api/v1/data")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
 public class FileUploadController {
 
     @Value("${app.upload.dir:uploads}")
