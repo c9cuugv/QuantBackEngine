@@ -1,31 +1,35 @@
-# Build stage
-FROM node:20-alpine AS build
+# Build Stage
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
+# Install dependencies only when needed
+COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Copy source
+# Rebuild the source code only when needed
 COPY . .
-
-# Build
 RUN npm run build
 
-# Runtime stage
-FROM node:20-alpine
+# Production Stage
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Copy built app
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/public ./public
+ENV NODE_ENV production
 
-# Expose port
+# Don't run as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy standalone output
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
 EXPOSE 3000
 
-# Run
-CMD ["npm", "start"]
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]
