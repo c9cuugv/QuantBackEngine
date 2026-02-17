@@ -123,6 +123,7 @@ export default function FileUpload({ onUploadSuccess, onClose }: FileUploadProps
                     <button
                         onClick={onClose}
                         className="text-gray-500 hover:text-white transition-colors"
+                        aria-label="Close"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -130,12 +131,20 @@ export default function FileUpload({ onUploadSuccess, onClose }: FileUploadProps
 
                 {/* Drop Zone */}
                 <div
+                    role="button"
+                    tabIndex={0}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            fileInputRef.current?.click();
+                        }
+                    }}
                     className={`
-                        border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all
+                        border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-accent-primary
                         ${isDragging
                             ? 'border-accent-primary bg-accent-primary/10'
                             : 'border-white/10 hover:border-white/30 hover:bg-white/5'
@@ -166,6 +175,7 @@ export default function FileUpload({ onUploadSuccess, onClose }: FileUploadProps
                                     handleClearFile();
                                 }}
                                 className="ml-2 text-gray-500 hover:text-accent-danger transition-colors"
+                                aria-label="Clear file"
                             >
                                 <X className="w-4 h-4" />
                             </button>
