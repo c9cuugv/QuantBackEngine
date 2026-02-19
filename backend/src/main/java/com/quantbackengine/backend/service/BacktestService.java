@@ -5,6 +5,7 @@ import com.quantbackengine.backend.dto.BacktestResponse;
 import com.quantbackengine.backend.dto.BacktestResponse.*;
 import com.quantbackengine.backend.strategy.StrategyRegistry;
 import com.quantbackengine.backend.strategy.TradingStrategy;
+import com.quantbackengine.backend.util.MetricsCalculator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +13,6 @@ import org.springframework.stereotype.Service;
 import org.ta4j.core.*;
 import org.ta4j.core.num.Num;
 
-import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 /**
@@ -164,7 +163,13 @@ public class BacktestService {
         }
 
         // Calculate metrics
-        MetricsDto metrics = calculateMetrics(equityCurve, initialCapital, trades.size(), winCount, lossCount);
+        MetricsDto metrics = MetricsCalculator.calculateMetrics(
+                equityCurve,
+                initialCapital,
+                trades.size(),
+                winCount,
+                lossCount,
+                riskFreeRate);
 
         log.info("Backtest complete. Total Return: {:.2f}%", metrics.getTotalReturn() * 100);
 
@@ -176,75 +181,6 @@ public class BacktestService {
                 .trades(trades)
                 .equityCurve(equityCurve)
                 .candles(candles)
-                .build();
-    }
-
-    private MetricsDto calculateMetrics(List<EquityPointDto> curve, double initial,
-            int totalTrades, int wins, int losses) {
-        if (curve.isEmpty()) {
-            return MetricsDto.builder().build();
-        }
-
-        double finalValue = curve.get(curve.size() - 1).getValue();
-        double totalReturn = (finalValue - initial) / initial;
-
-        // Calculate years
-        long startMs = curve.get(0).getTimestamp();
-        long endMs = curve.get(curve.size() - 1).getTimestamp();
-        double years = (endMs - startMs) / (365.25 * 24 * 60 * 60 * 1000.0);
-        double annualizedReturn = years > 0 ? Math.pow(1 + totalReturn, 1 / years) - 1 : 0;
-
-        // Max drawdown
-        double peak = -Double.MAX_VALUE;
-        double maxDd = 0.0;
-        double maxDdPct = 0.0;
-
-        for (EquityPointDto point : curve) {
-            double value = point.getValue();
-            if (value > peak) {
-                peak = value;
-            }
-            double drawdown = peak - value;
-            if (drawdown > maxDd) {
-                maxDd = drawdown;
-                maxDdPct = maxDd / peak;
-            }
-        }
-
-        // Sharpe ratio
-        double sharpe = 0.0;
-        if (curve.size() > 1) {
-            double[] returns = new double[curve.size() - 1];
-            for (int i = 1; i < curve.size(); i++) {
-                double prev = curve.get(i - 1).getValue();
-                double curr = curve.get(i).getValue();
-                returns[i - 1] = (curr - prev) / prev;
-            }
-
-            double mean = Arrays.stream(returns).average().orElse(0);
-            double variance = Arrays.stream(returns).map(r -> Math.pow(r - mean, 2)).sum() / (returns.length - 1);
-            double stdDev = Math.sqrt(variance);
-
-            if (stdDev > 0) {
-                double annualizedMean = mean * 252;
-                double annualizedStdDev = stdDev * Math.sqrt(252);
-                sharpe = (annualizedMean - riskFreeRate) / annualizedStdDev;
-            }
-        }
-
-        double winRate = totalTrades > 0 ? (double) wins / totalTrades : 0;
-
-        return MetricsDto.builder()
-                .totalReturn(totalReturn)
-                .annualizedReturn(annualizedReturn)
-                .maxDrawdown(maxDd)
-                .maxDrawdownPercent(maxDdPct)
-                .sharpeRatio(sharpe)
-                .backtestYears(years)
-                .totalTrades(totalTrades)
-                .winningTrades(wins)
-                .losingTrades(losses)
-                .winRate(winRate)
                 .build();
     }
 }
