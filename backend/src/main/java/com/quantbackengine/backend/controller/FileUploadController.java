@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -51,6 +50,15 @@ public class FileUploadController {
             return ResponseEntity.badRequest().body(response);
         }
 
+        // Content type check
+        String contentType = file.getContentType();
+        if (contentType != null && !contentType.equals("text/csv") && !contentType.equals("application/vnd.ms-excel")) {
+            // Some browsers send Excel for CSV, so we allow it, but we should strictly
+            // check extension as we do below.
+            // Just logging or stricter check if needed. Keeping extension check as primary
+            // helper.
+        }
+
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".csv")) {
             response.put("success", false);
@@ -72,10 +80,20 @@ public class FileUploadController {
 
             log.info("Uploaded stock data for symbol: {} to {}", sanitizedSymbol, filePath);
 
+            long rowCount = countCsvRows(filePath);
+
+            // Validate that the file actually has content (header + data)
+            if (rowCount <= 0) {
+                Files.delete(filePath); // Cleanup empty/invalid file
+                response.put("success", false);
+                response.put("error", "CSV file is empty or contains only header");
+                return ResponseEntity.badRequest().body(response);
+            }
+
             response.put("success", true);
             response.put("symbol", sanitizedSymbol);
             response.put("message", "File uploaded successfully");
-            response.put("rows", countCsvRows(filePath));
+            response.put("rows", rowCount);
             return ResponseEntity.ok(response);
 
         } catch (IOException e) {
@@ -158,9 +176,10 @@ public class FileUploadController {
     }
 
     private long countCsvRows(Path filePath) {
-        try {
-            return Files.lines(filePath).count() - 1; // Subtract header row
+        try (Stream<String> stream = Files.lines(filePath)) {
+            return stream.count() - 1; // Subtract header row
         } catch (IOException e) {
+            log.warn("Failed to count lines in file: {}", filePath, e);
             return 0;
         }
     }

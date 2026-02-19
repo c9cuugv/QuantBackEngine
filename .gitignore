@@ -18,6 +18,8 @@ backend/target/
 backend/*.jar
 backend/*.log
 backend/.mvn/wrapper/maven-wrapper.jar
+backend/uploads/
+backend/test_uploads/
 
 # ---- Frontend (Node.js/Next.js) ----
 frontend/node_modules/
