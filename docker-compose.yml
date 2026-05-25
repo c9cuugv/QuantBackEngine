@@ -8,20 +8,30 @@ services:
       POSTGRES_DB: quantdb
       POSTGRES_USER: quantuser
       POSTGRES_PASSWORD: quantpass
-    ports:
-      - "5432:5432"
+    shm_size: 32m
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U quantuser -d quantdb" ]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
+    stop_grace_period: 15s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 512M
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
 
   # Spring Boot Backend - Optimized for fast startup
   backend:
@@ -30,8 +40,6 @@ services:
       dockerfile: Dockerfile
     container_name: quantbackengine-backend
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/quantdb
@@ -39,16 +47,72 @@ services:
       SPRING_DATASOURCE_PASSWORD: quantpass
       # CORS
       APP_CORS_ALLOWED_ORIGINS: "*"
+      # Hikari pool — small pool fits low-concurrency VPS workload
+      SPRING_DATASOURCE_HIKARI_MINIMUM_IDLE: "2"
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: "5"
+      SPRING_DATASOURCE_HIKARI_IDLE_TIMEOUT: "30000"
+      LOGGING_LEVEL_ROOT: "WARN"
+      LOGGING_LEVEL_COM_QUANTBACKENGINE: "INFO"
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 1024M
+          cpus: '0.75'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # Nginx - Reverse proxy + static asset cache
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: quantbackengine-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost/favicon.ico || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 16M
 
   # Next.js Frontend - Production build
   frontend:
@@ -59,19 +123,30 @@ services:
         NEXT_PUBLIC_API_URL: http://backend:8080
     container_name: quantbackengine-frontend
     restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      # API URL for the frontend proxy to reach the backend
-      NEXT_PUBLIC_API_URL: http://backend:8080
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 512M
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 48M
 
 volumes:
   postgres_data:
