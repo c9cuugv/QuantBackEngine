@@ -3,6 +3,7 @@ package com.quantbackengine.backend.service;
 import com.quantbackengine.backend.dto.BacktestRequest;
 import com.quantbackengine.backend.dto.BacktestResponse;
 import com.quantbackengine.backend.dto.BacktestResponse.*;
+import com.quantbackengine.backend.strategy.PythonStrategyAdapter;
 import com.quantbackengine.backend.strategy.StrategyRegistry;
 import com.quantbackengine.backend.strategy.TradingStrategy;
 import com.quantbackengine.backend.util.MetricsCalculator;
@@ -45,6 +46,12 @@ public class BacktestService {
         // Validate strategy
         TradingStrategy strategy = strategyRegistry.getStrategy(request.getStrategy())
                 .orElseThrow(() -> new IllegalArgumentException("Unknown strategy: " + request.getStrategy()));
+
+        // fct: prefix → delegate entirely to PythonStrategyAdapter (no TA4J, no market data fetch)
+        if (strategy instanceof PythonStrategyAdapter pythonAdapter) {
+            log.info("Routing to PythonStrategyAdapter for strategy '{}'", request.getStrategy());
+            return pythonAdapter.runPythonBacktest(request);
+        }
 
         // Load market data
         BarSeries series = marketDataService.getBarSeries(
