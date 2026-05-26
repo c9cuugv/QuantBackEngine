@@ -27,34 +27,26 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 RUN npm run build
 
 # ============================================================
-# Stage 3: Minimal runtime image
+# Stage 3: Minimal runtime image (standalone — no node_modules needed)
 # ============================================================
 FROM node:20-alpine
 WORKDIR /app
 
-# Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy only what's needed to run
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./package.json
+# Standalone bundle includes only what's needed to run
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
 
-# Create public dir if it exists (optional assets)
-# COPY --from=build /app/public ./public 2>/dev/null || true
-
-# Set ownership
 RUN chown -R appuser:appgroup /app
-
-# Switch to non-root user
 USER appuser
 
-# Expose port
 EXPOSE 3000
 
-# Environment variables
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
-# Run
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

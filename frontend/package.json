@@ -6,22 +6,27 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "playwright test",
+    "test:e2e:api": "playwright test tests/e2e/api/",
+    "test:e2e:ui": "playwright test tests/e2e/ui/",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "lightweight-charts": "^4.1.0",
+    "lucide-react": "^0.303.0",
     "next": "^14.2.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "lightweight-charts": "^4.1.0",
-    "lucide-react": "^0.303.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
-    "typescript": "^5.3.3",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
-    "tailwindcss": "^3.4.0"
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.3"
   }
 }

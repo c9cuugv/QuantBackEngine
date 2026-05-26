@@ -47,11 +47,16 @@ USER appuser
 # Expose port
 EXPOSE 8080
 
-# JVM tuning for containers — faster startup, lower memory
+# JVM tuning for containers: SerialGC fits <1 CPU budget better than G1GC
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=75.0", \
-    "-XX:+TieredCompilation", \
-    "-XX:TieredStopAtLevel=1", \
+    "-XX:+UseSerialGC", \
+    "-XX:MaxRAMPercentage=50.0", \
+    "-XX:InitialRAMPercentage=10.0", \
+    "-XX:MaxMetaspaceSize=128m", \
+    "-XX:+ExitOnOutOfMemoryError", \
+    "-Xss256k", \
+    "-Djava.awt.headless=true", \
     "-Djava.security.egd=file:/dev/./urandom", \
+    "-Dspring.jmx.enabled=false", \
     "-jar", "app.jar"]

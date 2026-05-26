@@ -6,7 +6,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'http://backend:8080';
+const BACKEND = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://backend:8080';
 
 async function proxy(req: NextRequest, { params }: { params: { path: string[] } }) {
     const path = params.path.join('/');
