@@ -2,12 +2,15 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Port 3001 avoids collision with unrelated projects that may occupy 3000.
 const UI_PORT = process.env.UI_PORT ? parseInt(process.env.UI_PORT) : 3001;
+// When BASE_URL is provided (e.g. pointing at Docker on :80), skip starting a local dev server.
+const useExternalServer = !!process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${UI_PORT}`;
 
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
   workers: 1,
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
@@ -15,7 +18,7 @@ export default defineConfig({
     ['list'],
   ],
   use: {
-    baseURL: process.env.BASE_URL || `http://localhost:${UI_PORT}`,
+    baseURL: BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -25,7 +28,7 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ],
-  webServer: {
+  webServer: useExternalServer ? undefined : {
     command: `npm run dev -- -p ${UI_PORT}`,
     url: `http://localhost:${UI_PORT}`,
     reuseExistingServer: !process.env.CI,
