@@ -94,7 +94,7 @@ services:
       frontend:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost/favicon.ico || exit 1" ]
+      test: [ "CMD-SHELL", "wget -qO /dev/null http://localhost/ || exit 1" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -127,7 +127,7 @@ services:
       backend:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1" ]
+      test: [ "CMD-SHELL", "wget -qO /dev/null http://localhost:3000/ || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
