@@ -59,7 +59,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/backtest/strategies || exit 1" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/api/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -75,10 +75,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
+          cpus: '0.50'
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: '0.10'
           memory: 128M
 
   # Nginx - Reverse proxy + static asset cache
@@ -94,7 +94,7 @@ services:
       frontend:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO /dev/null http://localhost/ || exit 1" ]
+      test: [ "CMD-SHELL", "wget -qO /dev/null http://localhost/nginx-healthz || exit 1" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -143,10 +143,10 @@ services:
       resources:
         limits:
           cpus: '0.25'
-          memory: 128M
+          memory: 96M
         reservations:
           cpus: '0.05'
-          memory: 48M
+          memory: 32M
 
 volumes:
   postgres_data:
