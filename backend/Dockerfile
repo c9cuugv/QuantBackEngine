@@ -52,7 +52,7 @@ ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
     "-XX:+UseSerialGC", \
     "-XX:MaxRAMPercentage=50.0", \
-    "-XX:InitialRAMPercentage=10.0", \
+    "-XX:InitialRAMPercentage=25.0", \
     "-XX:MaxMetaspaceSize=128m", \
     "-XX:+ExitOnOutOfMemoryError", \
     "-Xss256k", \
