@@ -1,6 +1,7 @@
 import { test, expect, request } from '@playwright/test';
 
-const BACKEND = process.env.BACKEND_URL || 'http://localhost:8080';
+// Backend is only reachable via nginx (port 80); port 8080 is internal to Docker network.
+const BACKEND = process.env.BACKEND_URL || 'http://localhost';
 
 test.describe('Backend API — Baseline', () => {
   test('GET /api/v1/backtest/strategies returns non-empty list', async () => {
