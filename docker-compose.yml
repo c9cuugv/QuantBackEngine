@@ -142,6 +142,8 @@ services:
     restart: unless-stopped
     networks:
       - public
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=96"
     depends_on:
       backend:
         condition: service_healthy
