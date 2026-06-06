@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard — Baseline UI', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    // 60s covers transient nginx→frontend latency after prolonged test runs
+    await page.goto('/', { timeout: 60000 });
     await page.waitForLoadState('networkidle');
   });
 
