@@ -59,4 +59,5 @@ ENTRYPOINT ["java", \
     "-Djava.awt.headless=true", \
     "-Djava.security.egd=file:/dev/./urandom", \
     "-Dspring.jmx.enabled=false", \
+    "-Djava.net.preferIPv4Stack=true", \
     "-jar", "app.jar"]
