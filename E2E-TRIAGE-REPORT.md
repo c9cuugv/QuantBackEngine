@@ -1,8 +1,8 @@
-# E2E Triage Report — 2026-06-01 04:10 MST
+# E2E Triage Report — 2026-06-07 04:11 MST
 
 **Run type:** Automated scheduled triage loop
-**Commit:** `90e0487`
-**Duration:** ~18s
+**Commit:** `bce6311`
+**Duration:** ~9.5s
 **Stack:** All 4 containers healthy (nginx:80, frontend:3000, backend:8080, db:5432)
 
 ---

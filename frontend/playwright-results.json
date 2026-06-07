@@ -1,0 +1,652 @@
+{
+  "config": {
+    "configFile": "/Volumes/APPLE HDD ST2000DM001 Media/Projects/personal_project/new_learning/QuantBackEngine/frontend/playwright.config.ts",
+    "rootDir": "/Volumes/APPLE HDD ST2000DM001 Media/Projects/personal_project/new_learning/QuantBackEngine/frontend/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 15000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Volumes/APPLE HDD ST2000DM001 Media/Projects/personal_project/new_learning/QuantBackEngine/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Volumes/APPLE HDD ST2000DM001 Media/Projects/personal_project/new_learning/QuantBackEngine/frontend/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "version": "1.49.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "api/endpoints.spec.ts",
+      "file": "api/endpoints.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Backend API — Baseline",
+          "file": "api/endpoints.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "GET /api/v1/backtest/strategies returns non-empty list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 95,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:58.088Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-0f0f94dc6114b273d579",
+              "file": "api/endpoints.spec.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "GET /api/v1/backtest/strategies/{id} returns strategy detail",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 132,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:58.194Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-47c2bc53883f73fdfe59",
+              "file": "api/endpoints.spec.ts",
+              "line": 20,
+              "column": 7
+            },
+            {
+              "title": "GET /api/v1/backtest/strategies/{id} returns 404 for unknown id",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 20,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:58.330Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-8c35981fdb46e87ffd62",
+              "file": "api/endpoints.spec.ts",
+              "line": 34,
+              "column": 7
+            },
+            {
+              "title": "GET /api/v1/market-data/symbols returns list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:58.353Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-038c2771781548c32d4d",
+              "file": "api/endpoints.spec.ts",
+              "line": 41,
+              "column": 7
+            },
+            {
+              "title": "GET /api/v1/market-data/sources returns sources list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 97,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:58.368Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-34890ff8077e033f24d3",
+              "file": "api/endpoints.spec.ts",
+              "line": 50,
+              "column": 7
+            },
+            {
+              "title": "POST /api/v1/backtest/run with SMA_CROSSOVER returns metrics",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 1077,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:58.467Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-497af2230d2864adbc3d",
+              "file": "api/endpoints.spec.ts",
+              "line": 59,
+              "column": 7
+            },
+            {
+              "title": "POST /api/v1/backtest/run with invalid payload returns 400",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:59.546Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-b3040ae5ca7c95f8e511",
+              "file": "api/endpoints.spec.ts",
+              "line": 80,
+              "column": 7
+            },
+            {
+              "title": "Backend health: strategies endpoint returns 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 10,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:59.743Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-60b32ba8e5b24c376efc",
+              "file": "api/endpoints.spec.ts",
+              "line": 89,
+              "column": 7
+            },
+            {
+              "title": "GET /api/v1/market-data/python/{symbol} returns 200 or 400 (bridge-dependent)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 81,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:59.755Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-1000620d66f8381c2c71",
+              "file": "api/endpoints.spec.ts",
+              "line": 99,
+              "column": 7
+            },
+            {
+              "title": "POST /api/v1/analytics/quantstats always returns 200 with success field",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 82,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:59.838Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-32cbec4ab3e18fbfddf1",
+              "file": "api/endpoints.spec.ts",
+              "line": 107,
+              "column": 7
+            },
+            {
+              "title": "GET /api/v1/data/symbols returns list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 34,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:59.921Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-64ad17a9410f1d1cdd32",
+              "file": "api/endpoints.spec.ts",
+              "line": 118,
+              "column": 7
+            },
+            {
+              "title": "POST /api/v1/data/upload + DELETE lifecycle",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 170,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:12:59.957Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72c35ab6251c8a3f93e5-888aa672400bf9319945",
+              "file": "api/endpoints.spec.ts",
+              "line": 127,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ui/dashboard.spec.ts",
+      "file": "ui/dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Dashboard — Baseline UI",
+          "file": "ui/dashboard.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "page loads and shows QuantBackEngine heading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 2012,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:13:00.132Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b669bf248218912d02d6-87e8efed821e2bdc6add",
+              "file": "ui/dashboard.spec.ts",
+              "line": 9,
+              "column": 7
+            },
+            {
+              "title": "symbol selector pre-filled with AAPL",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 1518,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:13:02.624Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b669bf248218912d02d6-d04e109643c9a4170ea8",
+              "file": "ui/dashboard.spec.ts",
+              "line": 15,
+              "column": 7
+            },
+            {
+              "title": "strategy selector visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 1117,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:13:04.146Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b669bf248218912d02d6-11da40e34a17252ae27a",
+              "file": "ui/dashboard.spec.ts",
+              "line": 22,
+              "column": 7
+            },
+            {
+              "title": "run backtest button is present",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 1064,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:13:05.267Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b669bf248218912d02d6-3117974bf2652262d1bf",
+              "file": "ui/dashboard.spec.ts",
+              "line": 29,
+              "column": 7
+            },
+            {
+              "title": "metrics cards render after backtest",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "status": "passed",
+                      "duration": 2342,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-02T11:13:06.336Z",
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b669bf248218912d02d6-e879d2aca342924aff38",
+              "file": "ui/dashboard.spec.ts",
+              "line": 35,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-06-02T11:12:57.544Z",
+    "duration": 11187.085,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
