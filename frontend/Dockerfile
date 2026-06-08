@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install dependencies (cached layer)
-RUN npm ci --prefer-offline
+RUN npm ci --prefer-offline --no-audit --no-fund
 
 # ============================================================
 # Stage 2: Build the application

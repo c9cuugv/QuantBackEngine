@@ -18,12 +18,12 @@ Instead use:
 ### WebFetch — BLOCKED
 WebFetch calls are denied entirely. The URL is extracted and you are told to use `ctx_fetch_and_index` instead.
 Instead use:
-- `ctx_fetch_and_index(url, source)` then `ctx_search(queries)` to query the indexed content
+- `ctx_fetch_and_index(url, source)` then `ctx_search(queries)` — fetch, chunk, index, query. Raw HTML never enters context.
 
 ## REDIRECTED tools — use sandbox equivalents
 
 ### Bash (>20 lines output)
-Bash is ONLY for: `git`, `mkdir`, `rm`, `mv`, `cd`, `ls`, `npm install`, `pip install`, and other short-output commands.
+Bash is ONLY for: `git`, `mkdir`, `rm`, `mv`, `ls`, `npm install`, `pip install`, and other short-output commands.
 For everything else, use:
 - `ctx_batch_execute(commands, queries)` — run multiple commands + search in ONE call
 - `ctx_execute(language: "shell", code: "...")` — run in sandbox, only stdout enters context
@@ -34,6 +34,24 @@ If you are reading to **analyze, explore, or summarize** → use `ctx_execute_fi
 
 ### Grep (large results)
 Grep results can flood context. Use `ctx_execute(language: "shell", code: "grep ...")` to run searches in sandbox. Only your printed summary enters context.
+
+## Context7 — PRIMARY docs source
+
+When the user asks about libraries, frameworks, APIs, or needs code examples, use Context7 FIRST.
+
+**MCP tools available (prefix: `mcp_context7_`):**
+- `resolve-library-id(libraryName, query)` — resolve library name to Context7 ID (e.g. `/vercel/next.js`)
+- `query-docs(libraryId, query)` — fetch docs for a Context7 library ID
+
+**Workflow:**
+1. Call `resolve-library-id` with the library name and user's question
+2. Pick best match (highest benchmark score, exact name match)
+3. Call `query-docs` with the library ID and full question
+4. Answer using fetched docs — NEVER rely on training data for library specifics
+
+**Example:** User asks about "Next.js middleware" → resolve → pick `/vercel/next.js` → query → return accurate docs.
+
+Do NOT use Context7 for: refactoring, debugging business logic, code review, or general programming concepts.
 
 ## Tool selection hierarchy
 
