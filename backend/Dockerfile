@@ -4,14 +4,13 @@
 FROM eclipse-temurin:21-jdk-alpine AS deps
 WORKDIR /app
 
-# Install Maven
-RUN apk add --no-cache maven
-
-# Copy ONLY pom.xml first — this layer is cached unless pom.xml changes
-COPY pom.xml .
+# Copy ONLY pom.xml + wrapper first — this layer is cached unless pom.xml changes
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
 
 # Download all dependencies offline (cached layer)
-RUN mvn dependency:go-offline -B
+RUN ./mvnw dependency:go-offline -B
 
 # ============================================================
 # Stage 2: Build the application
@@ -23,7 +22,7 @@ WORKDIR /app
 COPY src ./src
 
 # Build the JAR (dependencies already cached from Stage 1)
-RUN mvn package -DskipTests -B
+RUN ./mvnw package -DskipTests -B
 
 # ============================================================
 # Stage 3: Minimal runtime image

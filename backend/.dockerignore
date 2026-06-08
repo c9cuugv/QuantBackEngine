@@ -2,3 +2,5 @@ target
 .git
 .idea
 *.iml
+*.log
+.mvn/wrapper/maven-wrapper.jar
