@@ -1,5 +1,7 @@
 package com.quantbackengine.backend.service;
 
+import com.quantbackengine.backend.exception.MarketDataUnavailableException;
+import com.quantbackengine.backend.repository.MarketDataRepository;
 import com.quantbackengine.backend.service.python.PythonBridgeService;
 import com.quantbackengine.backend.service.python.PythonMarketDataProvider;
 import net.jqwik.api.*;
@@ -40,10 +42,14 @@ class MarketDataServiceBridgeUnavailablePropertyTest {
         when(mockBridge.isAvailable()).thenReturn(false);
 
         PythonMarketDataProvider mockProvider = mock(PythonMarketDataProvider.class);
+        MarketDataRepository mockRepository = mock(MarketDataRepository.class);
+        when(mockRepository.findBySymbolAndTimestampBetweenOrderByTimestampAsc(anyString(), any(), any()))
+                .thenReturn(java.util.List.of());
+        when(mockRepository.findDistinctSymbols()).thenReturn(java.util.List.of());
 
-        MarketDataService service = new MarketDataService(mockProvider, mockBridge);
+        MarketDataService service = new MarketDataService(mockProvider, mockBridge, mockRepository);
 
-        assertThrows(IllegalStateException.class, () -> service.getBarSeries(symbol, start, end));
+        assertThrows(MarketDataUnavailableException.class, () -> service.getBarSeries(symbol, start, end));
 
         // No subprocess must have been spawned
         verify(mockBridge, never()).invoke(anyString(), any());

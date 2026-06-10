@@ -219,21 +219,21 @@ export default function Dashboard() {
                         {/* Symbol */}
                         <div>
                             <label className="block text-sm text-gray-400 mb-2">Stock Symbol</label>
-                            <select
+                            <input
+                                type="text"
                                 value={symbol}
-                                onChange={(e) => setSymbol(e.target.value)}
-                                className="select"
-                            >
-                                {symbols.length > 0 ? (
-                                    symbols.map((s) => (
-                                        <option key={s.symbol} value={s.symbol}>
-                                            {s.symbol} - {s.name}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option value="AAPL">AAPL - Apple Inc</option>
-                                )}
-                            </select>
+                                onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                                placeholder="Any ticker, e.g. AAPL"
+                                list="symbol-suggestions"
+                                className="input"
+                            />
+                            <datalist id="symbol-suggestions">
+                                {symbols.map((s) => (
+                                    <option key={s.symbol} value={s.symbol}>
+                                        {s.name}
+                                    </option>
+                                ))}
+                            </datalist>
                         </div>
 
                         {/* Strategy */}

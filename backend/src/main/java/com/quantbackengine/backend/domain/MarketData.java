@@ -13,9 +13,11 @@ import java.time.LocalDateTime;
  * Entity representing OHLCV market data for a symbol.
  */
 @Entity
-@Table(name = "market_data", indexes = {
-        @Index(name = "idx_symbol_timestamp", columnList = "symbol, timestamp")
-})
+@Table(name = "market_data",
+        uniqueConstraints = @UniqueConstraint(name = "uk_symbol_timestamp", columnNames = {"symbol", "timestamp"}),
+        indexes = {
+                @Index(name = "idx_symbol_timestamp", columnList = "symbol, timestamp")
+        })
 @Data
 @Builder
 @NoArgsConstructor

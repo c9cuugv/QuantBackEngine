@@ -1,6 +1,7 @@
 package com.quantbackengine.backend.service;
 
 import com.quantbackengine.backend.dto.OhlcvBar;
+import com.quantbackengine.backend.repository.MarketDataRepository;
 import com.quantbackengine.backend.service.python.PythonBridgeService;
 import com.quantbackengine.backend.service.python.PythonMarketDataProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,11 @@ class MarketDataServicePerformanceTest {
     void setUp() {
         mockProvider = mock(PythonMarketDataProvider.class);
         mockBridge = mock(PythonBridgeService.class);
-        marketDataService = new MarketDataService(mockProvider, mockBridge);
+        MarketDataRepository mockRepository = mock(MarketDataRepository.class);
+        when(mockRepository.findBySymbolAndTimestampBetweenOrderByTimestampAsc(anyString(), any(), any()))
+                .thenReturn(List.of());
+        when(mockRepository.findDistinctSymbols()).thenReturn(List.of());
+        marketDataService = new MarketDataService(mockProvider, mockBridge, mockRepository);
     }
 
     @Test

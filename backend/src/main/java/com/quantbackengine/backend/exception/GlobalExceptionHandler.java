@@ -46,6 +46,17 @@ public class GlobalExceptionHandler {
                 "message", ex.getMessage()));
     }
 
+    @ExceptionHandler(MarketDataUnavailableException.class)
+    public ResponseEntity<Map<String, Object>> handleMarketDataUnavailable(MarketDataUnavailableException ex) {
+        log.warn("Market data unavailable: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status", HttpStatus.SERVICE_UNAVAILABLE.value(),
+                "error", "Service Unavailable",
+                "message", ex.getMessage(),
+                "cachedSymbols", ex.getCachedSymbols()));
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
         log.warn("Invalid state: {}", ex.getMessage());
