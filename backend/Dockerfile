@@ -33,6 +33,13 @@ WORKDIR /app
 # Create a non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+# Python bridge runtime: yfinance market data fetch (pandas/numpy from apk = prebuilt musl)
+RUN apk add --no-cache python3 py3-pip py3-pandas py3-numpy \
+    && pip3 install --no-cache-dir --break-system-packages yfinance
+
+# Bridge scripts (vendored under backend/scripts, served at fincept.scripts.base-path)
+COPY scripts/ /app/scripts/
+RUN chown -R appuser:appgroup /app/scripts
 
 # Copy built JAR from build stage
 COPY --from=build /app/target/*.jar app.jar

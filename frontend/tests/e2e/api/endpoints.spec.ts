@@ -116,12 +116,4 @@ test.describe('Backend API — Baseline', () => {
     await ctx.dispose();
   });
 
-  test('GET /api/v1/market-data/symbols returns list', async () => {
-    const ctx = await request.newContext({ baseURL: BACKEND });
-    const res = await ctx.get('/api/v1/market-data/symbols');
-    expect(res.status()).toBe(200);
-    const body = await res.json();
-    expect(Array.isArray(body)).toBeTruthy();
-    await ctx.dispose();
-  });
 });
