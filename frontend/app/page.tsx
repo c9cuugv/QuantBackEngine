@@ -14,14 +14,12 @@ import {
     Activity,
     Target,
     Award,
-    Upload,
 } from 'lucide-react';
 import TradingChart from '@/components/TradingChart';
 import MetricCard from '@/components/MetricCard';
 import TradeList from '@/components/TradeList';
 import EquityCurve from '@/components/EquityCurve';
 import StrategySummary from '@/components/StrategySummary';
-import FileUpload from '@/components/FileUpload';
 
 interface SymbolInfo {
     symbol: string;
@@ -84,7 +82,6 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [symbols, setSymbols] = useState<SymbolInfo[]>([]);
-    const [showUploadModal, setShowUploadModal] = useState(false);
 
     // Fetch available strategies and symbols on mount
     useEffect(() => {
@@ -95,10 +92,10 @@ export default function Dashboard() {
     // Fetch available symbols
     const fetchSymbols = useCallback(async () => {
         try {
-            const res = await fetch('/api/v1/data/symbols');
+            const res = await fetch('/api/v1/market-data/symbols');
             if (res.ok) {
-                const data = await res.json();
-                setSymbols(data);
+                const data: string[] = await res.json();
+                setSymbols(data.map((s) => ({ symbol: s, name: s, type: 'predefined' })));
             }
         } catch (err) {
             console.error('Failed to fetch symbols:', err);
@@ -222,30 +219,21 @@ export default function Dashboard() {
                         {/* Symbol */}
                         <div>
                             <label className="block text-sm text-gray-400 mb-2">Stock Symbol</label>
-                            <div className="flex gap-2">
-                                <select
-                                    value={symbol}
-                                    onChange={(e) => setSymbol(e.target.value)}
-                                    className="select flex-1"
-                                >
-                                    {symbols.length > 0 ? (
-                                        symbols.map((s) => (
-                                            <option key={s.symbol} value={s.symbol}>
-                                                {s.symbol} - {s.name}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option value="AAPL">AAPL - Apple Inc</option>
-                                    )}
-                                </select>
-                                <button
-                                    onClick={() => setShowUploadModal(true)}
-                                    className="px-3 py-2 rounded-xl bg-accent-primary/20 text-accent-primary hover:bg-accent-primary/30 transition-colors flex items-center gap-1"
-                                    title="Upload custom data"
-                                >
-                                    <Upload className="w-4 h-4" />
-                                </button>
-                            </div>
+                            <select
+                                value={symbol}
+                                onChange={(e) => setSymbol(e.target.value)}
+                                className="select"
+                            >
+                                {symbols.length > 0 ? (
+                                    symbols.map((s) => (
+                                        <option key={s.symbol} value={s.symbol}>
+                                            {s.symbol} - {s.name}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option value="AAPL">AAPL - Apple Inc</option>
+                                )}
+                            </select>
                         </div>
 
                         {/* Strategy */}
@@ -427,14 +415,6 @@ export default function Dashboard() {
                     </div>
                 )}
             </main>
-
-            {/* Upload Modal */}
-            {showUploadModal && (
-                <FileUpload
-                    onUploadSuccess={fetchSymbols}
-                    onClose={() => setShowUploadModal(false)}
-                />
-            )}
         </div>
     );
 }

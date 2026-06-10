@@ -70,8 +70,6 @@ services:
       SPRING_DATASOURCE_HIKARI_IDLE_TIMEOUT: "30000"
       LOGGING_LEVEL_ROOT: "WARN"
       LOGGING_LEVEL_COM_QUANTBACKENGINE: "INFO"
-    volumes:
-      - backend_uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -173,7 +171,6 @@ services:
 
 volumes:
   postgres_data:
-  backend_uploads:
 
 networks:
   internal:

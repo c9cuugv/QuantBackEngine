@@ -33,8 +33,6 @@ WORKDIR /app
 # Create a non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Create uploads directory
-RUN mkdir -p /app/uploads && chown -R appuser:appgroup /app/uploads
 
 # Copy built JAR from build stage
 COPY --from=build /app/target/*.jar app.jar
