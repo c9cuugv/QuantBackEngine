@@ -13,16 +13,19 @@ test.describe('Dashboard — Baseline UI', () => {
     await page.screenshot({ path: 'artifacts/dashboard-load.png', fullPage: true });
   });
 
-  test('symbol selector pre-filled with AAPL', async ({ page }) => {
-    // Symbol is a <select> element (not an input); first select on page is symbol
-    const symbolSelect = page.locator('select').first();
-    await expect(symbolSelect).toBeVisible();
-    await expect(symbolSelect).toHaveValue('AAPL');
+  test('symbol input pre-filled with AAPL and accepts free text', async ({ page }) => {
+    // Symbol is a free-text <input> with datalist suggestions
+    const symbolInput = page.locator('input[list="symbol-suggestions"]');
+    await expect(symbolInput).toBeVisible();
+    await expect(symbolInput).toHaveValue('AAPL');
+
+    await symbolInput.fill('amd');
+    await expect(symbolInput).toHaveValue('AMD'); // auto-uppercased
   });
 
   test('strategy selector visible', async ({ page }) => {
-    // Strategy is the second <select> on the page
-    const strategySelect = page.locator('select').nth(1);
+    // Strategy is the only <select> on the page
+    const strategySelect = page.locator('select').first();
     await expect(strategySelect).toBeVisible();
     await expect(strategySelect).toHaveValue('SMA_CROSSOVER');
   });
