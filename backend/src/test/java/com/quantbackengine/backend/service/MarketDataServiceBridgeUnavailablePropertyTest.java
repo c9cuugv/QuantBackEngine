@@ -3,11 +3,10 @@ package com.quantbackengine.backend.service;
 import com.quantbackengine.backend.service.python.PythonBridgeService;
 import com.quantbackengine.backend.service.python.PythonMarketDataProvider;
 import net.jqwik.api.*;
-import org.ta4j.core.BarSeries;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -27,7 +26,8 @@ class MarketDataServiceBridgeUnavailablePropertyTest {
      *
      * <p>When {@code isAvailable()=false}, {@code MarketDataService.getBarSeries()} SHALL
      * never call {@code invoke()}, {@code invokeWithStdin()}, or {@code fetchHistorical()}
-     * regardless of the symbol or date range.
+     * regardless of the symbol or date range, and SHALL fail fast with
+     * {@link IllegalStateException} (no CSV fallback exists).
      */
     @Property(tries = 100)
     void whenBridgeUnavailableNoBridgeMethodIsInvoked(
@@ -43,15 +43,12 @@ class MarketDataServiceBridgeUnavailablePropertyTest {
 
         MarketDataService service = new MarketDataService(mockProvider, mockBridge);
 
-        BarSeries result = service.getBarSeries(symbol, start, end);
+        assertThrows(IllegalStateException.class, () -> service.getBarSeries(symbol, start, end));
 
         // No subprocess must have been spawned
         verify(mockBridge, never()).invoke(anyString(), any());
         verify(mockBridge, never()).invokeWithStdin(anyString(), any(), anyString());
         verify(mockProvider, never()).fetchHistorical(anyString(), any(), any(), anyString());
-
-        // Result must be a valid (empty) BarSeries — never null
-        assertNotNull(result, "getBarSeries() must never return null");
     }
 
     // -------------------------------------------------------------------------

@@ -10,9 +10,6 @@ import org.ta4j.core.BarSeries;
 import org.ta4j.core.BaseBar;
 import org.ta4j.core.BaseBarSeries;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -48,59 +45,14 @@ public class MarketDataService {
         String sanitizedSymbol = symbol.toUpperCase().replaceAll("[^A-Z0-9\\-]", "");
 
         if (!bridgeService.isAvailable()) {
-            log.warn("Python bridge unavailable — falling back to classpath CSV for {}", sanitizedSymbol);
-            return loadFromClasspath(sanitizedSymbol, start, end);
+            throw new IllegalStateException("Market data source unavailable: Python bridge is down");
         }
 
-        try {
-            List<OhlcvBar> bars = marketDataProvider.fetchHistorical(sanitizedSymbol, start, end, DEFAULT_SOURCE);
-            if (bars == null || bars.isEmpty()) {
-                log.warn("Python bridge returned no data for {} — falling back to classpath CSV", sanitizedSymbol);
-                return loadFromClasspath(sanitizedSymbol, start, end);
-            }
-            return toBarSeries(sanitizedSymbol, bars);
-        } catch (Exception e) {
-            log.error("Error fetching market data for {}: {} — falling back to classpath CSV", sanitizedSymbol, e.getMessage());
-            return loadFromClasspath(sanitizedSymbol, start, end);
+        List<OhlcvBar> bars = marketDataProvider.fetchHistorical(sanitizedSymbol, start, end, DEFAULT_SOURCE);
+        if (bars == null || bars.isEmpty()) {
+            throw new IllegalStateException("No market data available for " + sanitizedSymbol);
         }
-    }
-
-    private BarSeries loadFromClasspath(String symbol, LocalDate start, LocalDate end) {
-        String resourcePath = "data/" + symbol + ".csv";
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
-            if (is == null) {
-                log.warn("No classpath CSV found for {}", symbol);
-                return new BaseBarSeries(symbol);
-            }
-            List<Bar> bars = new ArrayList<>();
-            boolean headerFound = false;
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.startsWith("date,")) {
-                        headerFound = true;
-                        continue;
-                    }
-                    if (!headerFound) continue;
-                    String[] parts = line.split(",");
-                    if (parts.length < 6) continue;
-                    LocalDate date = LocalDate.parse(parts[0].trim());
-                    if (date.isBefore(start) || date.isAfter(end)) continue;
-                    bars.add(new BaseBar(
-                            Duration.ofDays(1),
-                            date.plusDays(1).atStartOfDay(ZONE_ID),
-                            parts[1].trim(), parts[2].trim(),
-                            parts[3].trim(), parts[4].trim(),
-                            parts[5].trim()
-                    ));
-                }
-            }
-            log.info("Loaded {} bars for {} from classpath CSV", bars.size(), symbol);
-            return new BaseBarSeries(symbol, bars);
-        } catch (Exception e) {
-            log.warn("Could not load classpath CSV for {}: {}", symbol, e.getMessage());
-            return new BaseBarSeries(symbol);
-        }
+        return toBarSeries(sanitizedSymbol, bars);
     }
 
     /**

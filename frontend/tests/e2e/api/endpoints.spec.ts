@@ -116,49 +116,12 @@ test.describe('Backend API — Baseline', () => {
     await ctx.dispose();
   });
 
-  test('GET /api/v1/data/symbols returns list', async () => {
+  test('GET /api/v1/market-data/symbols returns list', async () => {
     const ctx = await request.newContext({ baseURL: BACKEND });
-    const res = await ctx.get('/api/v1/data/symbols');
+    const res = await ctx.get('/api/v1/market-data/symbols');
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(Array.isArray(body)).toBeTruthy();
-    await ctx.dispose();
-  });
-
-  test('POST /api/v1/data/upload + DELETE lifecycle', async () => {
-    const ctx = await request.newContext({ baseURL: BACKEND });
-
-    // Build a minimal valid CSV
-    const csvContent = [
-      'Date,Open,High,Low,Close,Volume',
-      '2023-01-03,125.07,128.49,124.17,125.07,112117500',
-      '2023-01-04,126.89,128.66,125.08,126.36,89113600',
-    ].join('\n');
-
-    const uploadRes = await ctx.post('/api/v1/data/upload', {
-      multipart: {
-        symbol: 'E2ETEST',
-        file: {
-          name: 'E2ETEST.csv',
-          mimeType: 'text/csv',
-          buffer: Buffer.from(csvContent),
-        },
-      },
-    });
-    expect(uploadRes.status()).toBe(200);
-    const uploadBody = await uploadRes.json();
-    expect(uploadBody.success).toBe(true);
-
-    // Verify symbol appears in the list
-    const listRes = await ctx.get('/api/v1/data/symbols');
-    expect(listRes.status()).toBe(200);
-    const symbols: Array<{ symbol: string }> = await listRes.json();
-    expect(symbols.some(s => s.symbol === 'E2ETEST')).toBeTruthy();
-
-    // Clean up
-    const deleteRes = await ctx.delete('/api/v1/data/E2ETEST');
-    expect(deleteRes.status()).toBe(200);
-
     await ctx.dispose();
   });
 });
