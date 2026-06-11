@@ -2,6 +2,12 @@
 
 A **secure, ultra-fast quantitative backtesting platform** for algorithmic trading strategies. Built with Spring Boot 3, Next.js 14, and Optimized Docker orchestration.
 
+## 🌐 Live Demo
+
+**→ [https://frontend-deep-s-projects19.vercel.app](https://frontend-deep-s-projects19.vercel.app)**
+
+Live market data via Yahoo Finance · 4 strategies · Any ticker symbol
+
 ---
 
 ## ⚡ Quick Start: One-Command Startup
@@ -64,9 +70,10 @@ QuantBackEngine/
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Dashboard** | [http://localhost:3000](http://localhost:3000) | Main visual interface |
-| **API Docs** | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Interactive documentation |
-| **Database** | `localhost:5432` | PostgreSQL persistence |
+| **Live App** | [https://frontend-deep-s-projects19.vercel.app](https://frontend-deep-s-projects19.vercel.app) | **Production — Vercel** |
+| **Dashboard (local)** | [http://localhost:3000](http://localhost:3000) | Local dev interface |
+| **API Docs (local)** | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Interactive documentation |
+| **Database (local)** | `localhost:5432` | PostgreSQL persistence |
 
 ---
 
