@@ -14,7 +14,33 @@ import {
     Activity,
     Target,
     Award,
+    Info,
 } from 'lucide-react';
+
+const POPULAR_SYMBOLS = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA', 'META', 'AMZN', 'SPY', 'QQQ', 'BTC-USD'];
+
+const STRATEGY_INFO: Record<string, { how: string; signals: string; tips: string }> = {
+    SMA_CROSSOVER: {
+        how: 'Trend-following. Buys when the fast SMA crosses above the slow SMA (golden cross). Sells when fast crosses below slow (death cross).',
+        signals: 'BUY when Fast SMA rises above Slow SMA · SELL when Fast SMA falls below Slow SMA',
+        tips: 'Fast=20, Slow=50 is classic swing-trade setup. Fast=50, Slow=200 is the long-term golden/death cross.',
+    },
+    EMA_CROSSOVER: {
+        how: 'Same as SMA Crossover but uses Exponential Moving Averages — they weight recent prices more heavily, reacting faster to trend changes.',
+        signals: 'BUY when Fast EMA rises above Slow EMA · SELL when Fast EMA falls below Slow EMA',
+        tips: 'Fast=12, Slow=26 is the MACD default. EMA reacts faster than SMA — expect more trades.',
+    },
+    RSI_OVERSOLD: {
+        how: 'Mean-reversion. RSI (0–100) measures momentum. Buys when RSI drops below the oversold level (price is likely cheap). Sells when RSI rises above overbought (price is likely expensive).',
+        signals: 'BUY when RSI drops below Oversold Level (default 30) · SELL when RSI rises above Overbought Level (default 70)',
+        tips: 'Standard: Oversold=30, Overbought=70. Use Oversold=20/Overbought=80 for stronger (rarer) signals only.',
+    },
+    BOLLINGER_BANDS: {
+        how: 'Mean-reversion. Bands are 2 standard deviations around a moving average. Price touching the lower band signals oversold (buy). Touching the upper band signals overbought (sell).',
+        signals: 'BUY when price touches lower band · SELL when price touches upper band',
+        tips: 'Period=20, StdDev=2 is standard (covers ~95% of price action). Increase StdDev for fewer, stronger signals.',
+    },
+};
 import TradingChart from '@/components/TradingChart';
 import MetricCard from '@/components/MetricCard';
 import TradeList from '@/components/TradeList';
@@ -82,6 +108,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [symbols, setSymbols] = useState<SymbolInfo[]>([]);
+    const [showStrategyInfo, setShowStrategyInfo] = useState(false);
 
     // Fetch available strategies and symbols on mount
     useEffect(() => {
@@ -215,6 +242,26 @@ export default function Dashboard() {
                         <h2 className="text-lg font-semibold">Backtest Configuration</h2>
                     </div>
 
+                    {/* Quick-select popular symbols */}
+                    <div className="mb-5">
+                        <p className="text-xs text-gray-500 mb-2">Popular symbols</p>
+                        <div className="flex flex-wrap gap-2">
+                            {POPULAR_SYMBOLS.map((s) => (
+                                <button
+                                    key={s}
+                                    onClick={() => setSymbol(s)}
+                                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all border ${
+                                        symbol === s
+                                            ? 'bg-accent-primary border-accent-primary text-white'
+                                            : 'bg-dark-700 border-white/10 text-gray-400 hover:border-accent-primary hover:text-white'
+                                    }`}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {/* Symbol */}
                         <div>
@@ -224,24 +271,26 @@ export default function Dashboard() {
                                 value={symbol}
                                 onChange={(e) => setSymbol(e.target.value.toUpperCase())}
                                 placeholder="Any ticker, e.g. AAPL"
-                                list="symbol-suggestions"
                                 className="input"
                             />
-                            <datalist id="symbol-suggestions">
-                                {symbols.map((s) => (
-                                    <option key={s.symbol} value={s.symbol}>
-                                        {s.name}
-                                    </option>
-                                ))}
-                            </datalist>
+                            <p className="text-xs text-gray-600 mt-1">Type any ticker or click above</p>
                         </div>
 
                         {/* Strategy */}
                         <div>
-                            <label className="block text-sm text-gray-400 mb-2">Strategy</label>
+                            <label className="block text-sm text-gray-400 mb-2 flex items-center gap-1">
+                                Strategy
+                                <button
+                                    onClick={() => setShowStrategyInfo(!showStrategyInfo)}
+                                    className="text-gray-600 hover:text-accent-primary transition-colors"
+                                    title="Show strategy info"
+                                >
+                                    <Info className="w-3.5 h-3.5" />
+                                </button>
+                            </label>
                             <select
                                 value={selectedStrategy}
-                                onChange={(e) => setSelectedStrategy(e.target.value)}
+                                onChange={(e) => { setSelectedStrategy(e.target.value); setShowStrategyInfo(true); }}
                                 className="select"
                             >
                                 {strategies.map((s) => (
@@ -273,6 +322,30 @@ export default function Dashboard() {
                             />
                         </div>
                     </div>
+
+                    {/* Strategy Info Panel */}
+                    {showStrategyInfo && currentStrategy && STRATEGY_INFO[currentStrategy.id] && (
+                        <div className="mt-6 pt-6 border-t border-white/5">
+                            <div className="rounded-xl bg-dark-700 border border-accent-primary/20 p-4">
+                                <div className="flex items-start justify-between mb-3">
+                                    <h3 className="text-sm font-semibold text-accent-primary flex items-center gap-2">
+                                        <Info className="w-4 h-4" />
+                                        {currentStrategy.name} — How it works
+                                    </h3>
+                                    <button onClick={() => setShowStrategyInfo(false)} className="text-gray-600 hover:text-white text-xs">✕</button>
+                                </div>
+                                <p className="text-sm text-gray-300 mb-3">{STRATEGY_INFO[currentStrategy.id].how}</p>
+                                <div className="mb-3">
+                                    <p className="text-xs text-gray-500 font-medium mb-1">SIGNALS</p>
+                                    <p className="text-xs text-gray-400 font-mono bg-dark-800 rounded px-3 py-2">{STRATEGY_INFO[currentStrategy.id].signals}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium mb-1">TIPS</p>
+                                    <p className="text-xs text-gray-400">{STRATEGY_INFO[currentStrategy.id].tips}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Strategy Parameters */}
                     {currentStrategy && currentStrategy.parameters.length > 0 && (
