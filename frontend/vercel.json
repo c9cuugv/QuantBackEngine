@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "env": {
+    "BACKEND_URL": "@backend_url"
+  }
+}

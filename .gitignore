@@ -37,6 +37,32 @@ frontend/npm-debug.log*
 # ---- Docker ----
 docker-compose.override.yml
 
+# ---- ML / Python dev environments ----
+quant_env/
+qlib_new/
+FinceptTerminal/
+backend/.mllab-runs/
+backend/.jqwik-database
+
+# ---- Test artifacts ----
+browser_test.py
+test_browser.py
+test_frontend.py
+frontend/artifacts/
+frontend/playwright-report/
+frontend/test-results/
+frontend/tsconfig.tsbuildinfo
+playwright-transform-cache-502/
+graphify-out/
+
+# ---- Claude / tooling ----
+.claude/
+.hermes/
+.kiro/
+.mcp.json
+.playwright-mcp/
+context7/
+
 # ---- Misc ----
 *.log
 *.tmp

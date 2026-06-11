@@ -46,6 +46,33 @@ public class GlobalExceptionHandler {
                 "message", ex.getMessage()));
     }
 
+    @ExceptionHandler(MlLabConflictException.class)
+    public ResponseEntity<Map<String, Object>> handleMlLabConflict(MlLabConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status", HttpStatus.CONFLICT.value(),
+                "error", "Conflict",
+                "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(MlLabDisabledException.class)
+    public ResponseEntity<Map<String, Object>> handleMlLabDisabled(MlLabDisabledException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status", HttpStatus.NOT_FOUND.value(),
+                "error", "Not Found",
+                "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(java.util.NoSuchElementException.class)
+    public ResponseEntity<Map<String, Object>> handleNoSuchElement(java.util.NoSuchElementException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "status", HttpStatus.NOT_FOUND.value(),
+                "error", "Not Found",
+                "message", String.valueOf(ex.getMessage())));
+    }
+
     @ExceptionHandler(MarketDataUnavailableException.class)
     public ResponseEntity<Map<String, Object>> handleMarketDataUnavailable(MarketDataUnavailableException ex) {
         log.warn("Market data unavailable: {}", ex.getMessage());
