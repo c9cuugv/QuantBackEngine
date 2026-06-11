@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import yahooFinance from 'yahoo-finance2';
+import YahooFinance from 'yahoo-finance2';
+const yf = new YahooFinance();
 
 interface Bar {
     time: number;
@@ -253,7 +254,7 @@ export async function POST(req: NextRequest) {
         }
 
         type YFBar = { date: Date; open?: number; high?: number; low?: number; close?: number; adjclose?: number; volume?: number };
-        const raw = (await yahooFinance.historical(symbol.toUpperCase(), {
+        const raw = (await yf.historical(symbol.toUpperCase(), {
             period1: startDate,
             period2: endDate,
         })) as YFBar[];
