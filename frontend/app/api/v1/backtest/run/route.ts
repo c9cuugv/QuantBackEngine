@@ -202,7 +202,7 @@ function calcMetrics(
     initialCapital: number,
 ) {
     if (equityCurve.length < 2) {
-        return { totalReturn: 0, annualizedReturn: 0, maxDrawdown: 0, maxDrawdownPercent: 0, sharpeRatio: 0, backtestYears: 0, totalTrades: 0, winningTrades: 0 };
+        return { totalReturn: 0, annualizedReturn: 0, maxDrawdown: 0, maxDrawdownPercent: 0, sharpeRatio: 0, backtestYears: 0, totalTrades: 0, winningTrades: 0, losingTrades: 0, winRate: 0 };
     }
     const finalValue = equityCurve[equityCurve.length - 1].value;
     const totalReturn = (finalValue - initialCapital) / initialCapital;
@@ -233,6 +233,8 @@ function calcMetrics(
         backtestYears: years,
         totalTrades: trades.length,
         winningTrades: trades.filter((t) => t.pnl > 0).length,
+        losingTrades: trades.filter((t) => t.pnl <= 0).length,
+        winRate: trades.length > 0 ? trades.filter((t) => t.pnl > 0).length / trades.length : 0,
     };
 }
 
