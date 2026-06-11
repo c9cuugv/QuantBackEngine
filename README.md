@@ -4,7 +4,7 @@ A **secure, ultra-fast quantitative backtesting platform** for algorithmic tradi
 
 ## 🌐 Live Demo
 
-**→ [https://frontend-deep-s-projects19.vercel.app](https://frontend-deep-s-projects19.vercel.app)**
+**→ [https://frontend-haur31sp4-deep-s-projects19.vercel.app/](https://frontend-haur31sp4-deep-s-projects19.vercel.app/)**
 
 Live market data via Yahoo Finance · 4 strategies · Any ticker symbol
 
