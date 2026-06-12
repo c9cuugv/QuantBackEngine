@@ -230,6 +230,8 @@ function calcMetrics(
     const stdR = Math.sqrt(dailyReturns.reduce((a, b) => a + (b - meanR) ** 2, 0) / dailyReturns.length);
     const sharpeRatio = stdR > 0 ? ((meanR * 252 - 0.02) / (stdR * Math.sqrt(252))) : 0;
 
+    const directionallyCorrect = trades.filter((t) => t.exitPrice > t.entryPrice).length;
+
     return {
         totalReturn,
         annualizedReturn,
@@ -241,6 +243,7 @@ function calcMetrics(
         winningTrades: trades.filter((t) => t.pnl > 0).length,
         losingTrades: trades.filter((t) => t.pnl <= 0).length,
         winRate: trades.length > 0 ? trades.filter((t) => t.pnl > 0).length / trades.length : 0,
+        directionalAccuracy: trades.length > 0 ? directionallyCorrect / trades.length : 0,
     };
 }
 

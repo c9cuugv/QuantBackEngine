@@ -24,6 +24,7 @@ export interface BacktestRecord {
         winningTrades: number;
         losingTrades: number;
         winRate: number;
+        directionalAccuracy: number;
     };
     trades: unknown[];
     equity_curve: { timestamp: number; value: number }[];

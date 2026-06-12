@@ -47,6 +47,7 @@ import TradeList from '@/components/TradeList';
 import EquityCurve from '@/components/EquityCurve';
 import StrategySummary from '@/components/StrategySummary';
 import BacktestHistory from '@/components/BacktestHistory';
+import PaperTrading from '@/components/PaperTrading';
 
 interface SymbolInfo {
     symbol: string;
@@ -83,6 +84,7 @@ interface BacktestResult {
         winningTrades: number;
         losingTrades: number;
         winRate: number;
+        directionalAccuracy: number;
     };
     trades: {
         type: string;
@@ -445,6 +447,12 @@ export default function Dashboard() {
                                 icon={<Award className="w-5 h-5" />}
                                 trend="neutral"
                             />
+                            <MetricCard
+                                label="Direction Accuracy"
+                                value={`${((result.metrics.directionalAccuracy ?? 0) * 100).toFixed(1)}%`}
+                                icon={<Percent className="w-5 h-5" />}
+                                trend={(result.metrics.directionalAccuracy ?? 0) >= 0.5 ? 'up' : 'down'}
+                            />
                         </section>
 
                         {/* Equity Curve */}
@@ -475,6 +483,16 @@ export default function Dashboard() {
                         </section>
                     </>
                 )}
+
+                {/* Paper Trading — always visible */}
+                <section className="mb-8">
+                    <PaperTrading
+                        symbol={symbol}
+                        strategy={selectedStrategy}
+                        parameters={parameters}
+                        strategyName={currentStrategy?.name ?? selectedStrategy}
+                    />
+                </section>
 
                 {/* Empty State */}
                 {!result && !loading && (

@@ -44,6 +44,7 @@ export default function TradeList({ trades }: TradeListProps) {
                 <thead>
                     <tr className="text-left text-gray-500 border-b border-white/5">
                         <th className="pb-3 font-medium">#</th>
+                        <th className="pb-3 font-medium">Direction</th>
                         <th className="pb-3 font-medium">Entry Date</th>
                         <th className="pb-3 font-medium">Entry Price</th>
                         <th className="pb-3 font-medium">Exit Date</th>
@@ -57,6 +58,11 @@ export default function TradeList({ trades }: TradeListProps) {
                     {trades.map((trade, idx) => (
                         <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
                             <td className="py-3 text-gray-400">{idx + 1}</td>
+                            <td className="py-3">
+                                {trade.exitPrice > trade.entryPrice
+                                    ? <span className="text-accent-success font-bold">✓</span>
+                                    : <span className="text-accent-danger font-bold">✗</span>}
+                            </td>
                             <td className="py-3">{formatDate(trade.entryDate)}</td>
                             <td className="py-3 font-mono">{formatCurrency(trade.entryPrice)}</td>
                             <td className="py-3">{formatDate(trade.exitDate)}</td>
