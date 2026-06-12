@@ -46,6 +46,7 @@ import MetricCard from '@/components/MetricCard';
 import TradeList from '@/components/TradeList';
 import EquityCurve from '@/components/EquityCurve';
 import StrategySummary from '@/components/StrategySummary';
+import BacktestHistory from '@/components/BacktestHistory';
 
 interface SymbolInfo {
     symbol: string;
@@ -477,7 +478,7 @@ export default function Dashboard() {
 
                 {/* Empty State */}
                 {!result && !loading && (
-                    <div className="card p-12 text-center animate-fade-in">
+                    <div className="card p-12 text-center animate-fade-in mb-8">
                         <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-dark-700 flex items-center justify-center">
                             <BarChart3 className="w-8 h-8 text-gray-500" />
                         </div>
@@ -487,6 +488,9 @@ export default function Dashboard() {
                         </p>
                     </div>
                 )}
+
+                {/* Community History — always visible */}
+                <BacktestHistory />
             </main>
         </div>
     );

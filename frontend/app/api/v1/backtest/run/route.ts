@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
+import { createClient } from '@supabase/supabase-js';
+
 const yf = new YahooFinance();
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
 
 interface Bar {
     time: number;
@@ -279,6 +285,21 @@ export async function POST(req: NextRequest) {
 
         const { trades, equityCurve } = runStrategy(bars, strategy, parameters, initialCapital, commissionRate);
         const metrics = calcMetrics(trades, equityCurve, initialCapital);
+
+        // Save to Supabase (non-blocking — failure doesn't affect response)
+        supabase.from('backtest_results').insert({
+            symbol,
+            strategy,
+            start_date: startDate,
+            end_date: endDate,
+            parameters,
+            metrics,
+            trades,
+            equity_curve: equityCurve,
+            candles: bars,
+        }).then(({ error }) => {
+            if (error) console.error('[supabase] save failed:', error.message);
+        });
 
         return NextResponse.json({
             id: `${symbol}-${strategy}-${Date.now()}`,
