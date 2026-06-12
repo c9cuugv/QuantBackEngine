@@ -48,6 +48,7 @@ import EquityCurve from '@/components/EquityCurve';
 import StrategySummary from '@/components/StrategySummary';
 import BacktestHistory from '@/components/BacktestHistory';
 import PaperTrading from '@/components/PaperTrading';
+import MLPredictor from '@/components/MLPredictor';
 
 interface SymbolInfo {
     symbol: string;
@@ -483,6 +484,16 @@ export default function Dashboard() {
                         </section>
                     </>
                 )}
+
+                {/* ML Predictor — always visible */}
+                <section className="mb-8">
+                    <MLPredictor
+                        symbol={symbol}
+                        strategy={selectedStrategy}
+                        parameters={parameters}
+                        strategyName={currentStrategy?.name ?? selectedStrategy}
+                    />
+                </section>
 
                 {/* Paper Trading — always visible */}
                 <section className="mb-8">
