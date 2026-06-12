@@ -1,9 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+let _client: SupabaseClient | null = null;
 
-export const supabase = createClient(url, key);
+// Lazy init — createClient must not run at module load time: Next.js build-time
+// page-data collection imports modules without env vars, which would crash the build.
+export function getSupabase(): SupabaseClient {
+    if (!_client) {
+        _client = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        );
+    }
+    return _client;
+}
 
 export interface BacktestRecord {
     id: string;

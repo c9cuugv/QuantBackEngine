@@ -142,8 +142,11 @@ services:
     restart: unless-stopped
     networks:
       - public
+    env_file:
+      - ./frontend/.env.local
     environment:
-      NODE_OPTIONS: "--max-old-space-size=96"
+      NODE_OPTIONS: "--max-old-space-size=80"
+      NEXT_PUBLIC_API_URL: http://backend:8080
     depends_on:
       backend:
         condition: service_healthy

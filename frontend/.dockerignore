@@ -8,3 +8,6 @@ test-results
 artifacts
 *.log
 coverage
+e2e
+playwright.config.*
+*.md

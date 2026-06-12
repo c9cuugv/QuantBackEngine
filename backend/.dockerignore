@@ -4,3 +4,6 @@ target
 *.iml
 *.log
 .mvn/wrapper/maven-wrapper.jar
+uploads
+test_uploads
+railway.toml

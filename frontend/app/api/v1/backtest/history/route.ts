@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '@/lib/supabase';
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
+    const supabase = getSupabase();
     const { data, error } = await supabase
         .from('backtest_results')
         .select('id, created_at, symbol, strategy, start_date, end_date, parameters, metrics')

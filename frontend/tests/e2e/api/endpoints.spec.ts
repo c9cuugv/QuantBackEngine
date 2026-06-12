@@ -116,4 +116,43 @@ test.describe('Backend API — Baseline', () => {
     await ctx.dispose();
   });
 
+  // Next.js-only routes (nginx longest-prefix routes these to frontend:3000, not Spring Boot)
+  test('GET /api/v1/backtest/history returns array', async () => {
+    const ctx = await request.newContext({ baseURL: BACKEND });
+    const res = await ctx.get('/api/v1/backtest/history');
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(Array.isArray(body)).toBeTruthy();
+    await ctx.dispose();
+  });
+
+  test('POST /api/v1/paper/portfolio missing required fields returns 400', async () => {
+    const ctx = await request.newContext({ baseURL: BACKEND });
+    const res = await ctx.post('/api/v1/paper/portfolio', {
+      data: { symbol: 'AAPL' }, // missing sessionId and strategy
+    });
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    expect(body).toHaveProperty('message');
+    await ctx.dispose();
+  });
+
+  test('POST /api/v1/paper/portfolio valid payload returns portfolio state', async () => {
+    const ctx = await request.newContext({ baseURL: BACKEND });
+    const res = await ctx.post('/api/v1/paper/portfolio', {
+      data: {
+        sessionId: '00000000-e2e0-4000-8000-000000000001', // fixed UUID for e2e
+        symbol: 'AAPL',
+        strategy: 'SMA_CROSSOVER',
+        parameters: {},
+      },
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty('currentValue');
+    expect(body).toHaveProperty('currentSignal');
+    expect(['BUY', 'SELL', 'HOLD']).toContain(body.currentSignal);
+    await ctx.dispose();
+  });
+
 });

@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '@/lib/supabase';
 
 const yf = new YahooFinance();
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
 
 interface Bar { time: number; open: number; high: number; low: number; close: number; volume: number; }
 
@@ -176,6 +172,7 @@ function simulate(bars: Bar[], strategy: string, params: Record<string, number>,
 
 export async function POST(req: NextRequest) {
     try {
+        const supabase = getSupabase();
         const { sessionId, symbol, strategy, parameters = {} } = await req.json();
         if (!sessionId || !symbol || !strategy) {
             return NextResponse.json({ message: 'sessionId, symbol, strategy required' }, { status: 400 });
@@ -258,6 +255,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
     try {
+        const supabase = getSupabase();
         const { sessionId, symbol, strategy } = await req.json();
         await supabase.from('paper_portfolios').delete()
             .eq('session_id', sessionId)

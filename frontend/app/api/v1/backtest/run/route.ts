@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import YahooFinance from 'yahoo-finance2';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabase } from '@/lib/supabase';
 
 const yf = new YahooFinance();
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-);
 
 interface Bar {
     time: number;
@@ -249,6 +245,7 @@ function calcMetrics(
 
 export async function POST(req: NextRequest) {
     try {
+        const supabase = getSupabase();
         const body = await req.json();
         const {
             symbol,

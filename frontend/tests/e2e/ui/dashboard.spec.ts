@@ -14,13 +14,13 @@ test.describe('Dashboard — Baseline UI', () => {
   });
 
   test('symbol input pre-filled with AAPL and accepts free text', async ({ page }) => {
-    // Symbol is a free-text <input> with datalist suggestions
-    const symbolInput = page.locator('input[list="symbol-suggestions"]');
+    // Symbol is a free-text input near the "Stock Symbol" label
+    const symbolInput = page.locator('input[placeholder*="AAPL"], input[placeholder*="ticker"]').first();
     await expect(symbolInput).toBeVisible();
     await expect(symbolInput).toHaveValue('AAPL');
 
     await symbolInput.fill('amd');
-    await expect(symbolInput).toHaveValue('AMD'); // auto-uppercased
+    await expect(symbolInput).toHaveValue('AMD'); // auto-uppercased via onChange
   });
 
   test('strategy selector visible', async ({ page }) => {
@@ -52,5 +52,28 @@ test.describe('Dashboard — Baseline UI', () => {
     await expect(cards.first()).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({ path: 'artifacts/dashboard-results.png', fullPage: true });
+  });
+
+  test('Paper Portfolio section renders on load', async ({ page }) => {
+    // PaperTrading component is always visible (not conditional on backtest result)
+    const heading = page.locator('h2:has-text("Paper Portfolio")');
+    await expect(heading).toBeVisible();
+  });
+
+  test('Community Backtests section renders on load', async ({ page }) => {
+    // BacktestHistory component is always visible
+    const heading = page.locator('h2:has-text("Community Backtests")');
+    await expect(heading).toBeVisible();
+  });
+
+  test('Paper Portfolio shows portfolio data or loading state', async ({ page }) => {
+    // Use CSS :has() to find the card containing the Paper Portfolio heading
+    const card = page.locator('.card:has(h2:has-text("Paper Portfolio"))');
+    await expect(card).toBeVisible({ timeout: 10000 });
+    // After card is visible, wait for either a currency value or the loading message
+    const hasValue = card.locator('text=/\\$[0-9]/').first();
+    const hasLoading = card.locator('text=/Simulating/i').first();
+    await expect(hasValue.or(hasLoading)).toBeVisible({ timeout: 30000 });
+    await page.screenshot({ path: 'artifacts/paper-portfolio.png' });
   });
 });
